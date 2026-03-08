@@ -9,7 +9,7 @@ import { downloadBlob, exportAsCrossLayout, exportAsIndividualPngs } from '@/exp
 import { useKeyboardShortcuts } from '@/hooks';
 import { SkyboxPipeline } from '@/renderer/SkyboxPipeline';
 import { useAppStore } from '@/state';
-import { AboutModal, Toolbar, Viewport } from '@/ui/components';
+import { AboutModal, ErrorBoundary, PerfOverlay, Toolbar, Viewport } from '@/ui/components';
 import { AppLayout } from '@/ui/layout';
 import {
   BackgroundPanel,
@@ -19,6 +19,7 @@ import {
   StarFieldPanel,
   SunPanel,
 } from '@/ui/panels';
+import { perfMonitor } from '@/utils/perfMonitor';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function App() {
@@ -76,13 +77,16 @@ function App() {
     const pipeline = pipelineRef.current;
     if (!pipeline) return;
 
+    const frameStart = perfMonitor.frameStart();
+
     if (needsRedraw) {
       syncLayers();
-      pipeline.renderCubemap(seed);
+      perfMonitor.timeCubemapRender(() => pipeline.renderCubemap(seed));
       clearRedraw();
     }
 
     pipeline.renderPreview(camera.yaw, camera.pitch, camera.fov);
+    perfMonitor.frameEnd(frameStart);
     rafRef.current = requestAnimationFrame(renderFrame);
   }, [seed, camera, needsRedraw, clearRedraw, syncLayers]);
 
@@ -199,7 +203,7 @@ function App() {
   }, [seed]);
 
   return (
-    <>
+    <ErrorBoundary>
       <AppLayout
         toolbar={<Toolbar onAboutClick={() => setShowAbout(true)} />}
         sidebar={
@@ -212,10 +216,15 @@ function App() {
             <ExportPanel onExport={handleExport} />
           </>
         }
-        viewport={<Viewport onCanvasReady={handleCanvasReady} />}
+        viewport={
+          <>
+            <Viewport onCanvasReady={handleCanvasReady} />
+            <PerfOverlay />
+          </>
+        }
       />
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
-    </>
+    </ErrorBoundary>
   );
 }
 

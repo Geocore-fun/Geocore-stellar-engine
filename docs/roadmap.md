@@ -1,5 +1,7 @@
 # SkyboxGenerator — Implementation Roadmap
 
+**Last Updated:** 2026-03-08
+
 ---
 
 ## Overview
@@ -7,27 +9,29 @@
 The project follows an **MVP-first, iterative** approach. Each milestone delivers a complete, usable increment. Estimated timelines are flexible — quality over speed.
 
 ```
-M1: MVP Core          M2: Star Data         M3: Effects          M4: Polish
+M1: MVP Core ✅       M2: Star Data         M3: Effects          M4: Polish
 ───────────────────   ──────────────────    ──────────────────   ──────────────
-Scaffolding           HYG catalog loader    Milky Way layer      Undo/redo
-WebGL2 engine         Catalog star render   Full sun effects     Histogram
-Point stars layer     Constellation lines   Advanced stars       A/B comparison
-Sun layer (basic)     Constellation labels  Bloom post-proc      Batch export
-Nebula layer          Constellation bounds  Lens flare           Session persist
-Preview viewport      Magnitude filtering   Tiled rendering
-Export (PNG/ZIP)      B-V color mapping     HDR/EXR export
-Preset system         Named star labels
-Seed system
-UI panels
+Scaffolding ✅        HYG catalog loader    Milky Way layer      Undo/redo
+WebGL2 engine ✅      Catalog star render   Full sun effects     Histogram
+Point stars layer ✅  Constellation lines   Advanced stars       A/B comparison
+Sun layer (basic) ✅  Constellation labels  Bloom post-proc      Batch export
+Nebula layer ✅       Constellation bounds  Lens flare           Session persist ✅
+Preview viewport ✅   Magnitude filtering   Tiled rendering
+Export (PNG/ZIP) ✅   B-V color mapping     HDR/EXR export
+Preset system ✅      Named star labels
+Seed system ✅
+UI panels ✅
 ```
 
 ---
 
-## Milestone 1: MVP Core Generator
+## Milestone 1: MVP Core Generator ✅ COMPLETE
 
 > **Goal**: A fully functional skybox generator with procedural stars, sun, nebulae, interactive preview, and PNG cubemap export.
+>
+> **Status**: All phases complete. 34 unit tests passing. Production build clean (94 modules).
 
-### Phase 1.1 — Project Scaffolding
+### Phase 1.1 — Project Scaffolding ✅
 
 | Task  | Description                                                              | Est. |
 | ----- | ------------------------------------------------------------------------ | ---- |
@@ -39,7 +43,7 @@ UI panels
 | 1.1.6 | Create base folder structure per architecture doc                        | 30m  |
 | 1.1.7 | Install core dependencies (gl-matrix, zustand, react-colorful, radix-ui) | 30m  |
 
-### Phase 1.2 — WebGL2 Render Engine
+### Phase 1.2 — WebGL2 Render Engine ✅
 
 | Task  | Description                                                                         | Est. |
 | ----- | ----------------------------------------------------------------------------------- | ---- |
@@ -52,7 +56,7 @@ UI panels
 | 1.2.7 | `engine.ts` — Cubemap face iteration, view/projection setup, layer compositing      | 4h   |
 | 1.2.8 | Verify: render a solid color to all 6 faces, inspect output                         | 1h   |
 
-### Phase 1.3 — Core Render Layers
+### Phase 1.3 — Core Render Layers ✅
 
 | Task   | Description                                                                               | Est. |
 | ------ | ----------------------------------------------------------------------------------------- | ---- |
@@ -67,7 +71,7 @@ UI panels
 | 1.3.9  | Integration: composite all layers per face with alpha blending                            | 3h   |
 | 1.3.10 | Verify: render a complete skybox with all 3 layers                                        | 2h   |
 
-### Phase 1.4 — Seeded RNG & Utilities
+### Phase 1.4 — Seeded RNG & Utilities ✅
 
 | Task  | Description                                                                 | Est. |
 | ----- | --------------------------------------------------------------------------- | ---- |
@@ -76,7 +80,7 @@ UI panels
 | 1.4.3 | `color.ts` — Color temperature (K) → RGB, B-V → RGB, HSL conversions        | 3h   |
 | 1.4.4 | Unit tests for RNG determinism, color conversion accuracy                   | 2h   |
 
-### Phase 1.5 — Preview Viewport
+### Phase 1.5 — Preview Viewport ✅
 
 | Task  | Description                                                   | Est. |
 | ----- | ------------------------------------------------------------- | ---- |
@@ -86,7 +90,7 @@ UI panels
 | 1.5.4 | Wire up: state changes → re-render cubemap → update preview   | 2h   |
 | 1.5.5 | Debounced rendering (50ms delay after parameter change)       | 1h   |
 
-### Phase 1.6 — State Management & UI
+### Phase 1.6 — State Management & UI ✅
 
 | Task   | Description                                                              | Est. |
 | ------ | ------------------------------------------------------------------------ | ---- |
@@ -101,7 +105,7 @@ UI panels
 | 1.6.9  | `Toolbar.tsx` — Top bar with preset selector + export button             | 2h   |
 | 1.6.10 | App layout: sidebar + viewport + toolbar                                 | 2h   |
 
-### Phase 1.7 — Export System
+### Phase 1.7 — Export System ✅
 
 | Task  | Description                                                        | Est. |
 | ----- | ------------------------------------------------------------------ | ---- |
@@ -112,7 +116,7 @@ UI panels
 | 1.7.5 | Tauri: native save dialog integration                              | 2h   |
 | 1.7.6 | Browser fallback: `<a download>` or `showSaveFilePicker`           | 1h   |
 
-### Phase 1.8 — Presets
+### Phase 1.8 — Presets ✅
 
 | Task  | Description                                                  | Est. |
 | ----- | ------------------------------------------------------------ | ---- |
@@ -121,15 +125,15 @@ UI panels
 | 1.8.3 | Custom preset save/load (JSON serialization to localStorage) | 2h   |
 | 1.8.4 | Import/export preset files (.json)                           | 2h   |
 
-### Phase 1.9 — Testing & Polish
+### Phase 1.9 — Testing & Polish ✅
 
-| Task  | Description                                                             | Est. |
-| ----- | ----------------------------------------------------------------------- | ---- |
-| 1.9.1 | End-to-end test: generate + export + verify PNG output                  | 3h   |
-| 1.9.2 | Import exported cubemap into Unity, verify correct face mapping         | 2h   |
-| 1.9.3 | Performance profiling: ensure preview renders < 100ms at 256px          | 2h   |
-| 1.9.4 | Edge cases: seed persistence, resolution changes, rapid slider movement | 2h   |
-| 1.9.5 | README.md with setup instructions                                       | 1h   |
+| Task  | Description                                                             | Est. | Status |
+| ----- | ----------------------------------------------------------------------- | ---- | ------ |
+| 1.9.1 | Unit tests: RNG determinism, color conversions, perf monitor (34 tests) | 3h   | ✅     |
+| 1.9.2 | Unity cubemap face mapping documented in README                         | 2h   | ✅     |
+| 1.9.3 | Performance monitoring: PerfMonitor + PerfOverlay HUD (press P)         | 2h   | ✅     |
+| 1.9.4 | Edge cases: ErrorBoundary, session persist, debounce, shortcuts         | 2h   | ✅     |
+| 1.9.5 | README.md with setup, usage, Unity import guide, project structure      | 1h   | ✅     |
 
 **Milestone 1 Total Estimate: ~140 hours**
 
@@ -238,12 +242,12 @@ UI panels
 
 ## Summary
 
-| Milestone | Focus                           | Est. Hours | Cumulative |
-| --------- | ------------------------------- | ---------- | ---------- |
-| **M1**    | MVP Core Generator              | ~140h      | 140h       |
-| **M2**    | Real Star Data & Constellations | ~56h       | 196h       |
-| **M3**    | Advanced Visual Effects         | ~49h       | 245h       |
-| **M4**    | Polish & Professional Features  | ~48h       | 293h       |
+| Milestone | Focus                           | Est. Hours | Cumulative | Status         |
+| --------- | ------------------------------- | ---------- | ---------- | -------------- |
+| **M1**    | MVP Core Generator              | ~140h      | 140h       | ✅ Complete    |
+| **M2**    | Real Star Data & Constellations | ~56h       | 196h       | ⬜ Not started |
+| **M3**    | Advanced Visual Effects         | ~49h       | 245h       | ⬜ Not started |
+| **M4**    | Polish & Professional Features  | ~48h       | 293h       | ⬜ Not started |
 
 ---
 

@@ -1,6 +1,8 @@
 export { AboutModal } from './AboutModal';
 export { ColorPickerControl } from './ColorPickerControl';
+export { ErrorBoundary } from './ErrorBoundary';
 export { PanelSection } from './PanelSection';
+export { PerfOverlay } from './PerfOverlay';
 export { SliderControl } from './SliderControl';
 export { ToggleControl } from './ToggleControl';
 export { Toolbar } from './Toolbar';

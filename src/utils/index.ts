@@ -4,4 +4,5 @@ export {
   getCubeFaceViewMatrix,
   getCubemapProjectionMatrix,
 } from './cubemap';
+export { PerfMonitor, perfMonitor } from './perfMonitor';
 export { SeededRNG } from './rng';
