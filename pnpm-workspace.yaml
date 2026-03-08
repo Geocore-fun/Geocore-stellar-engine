@@ -1,0 +1,11 @@
+allowBuilds:
+  /: true
+  '@': true
+  '@swc/core': false
+  c: true
+  e: true
+  esbuild: false
+  o: true
+  r: true
+  s: true
+  w: true
