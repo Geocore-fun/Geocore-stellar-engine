@@ -11,6 +11,12 @@ export function LensFlarePanel() {
 
   return (
     <PanelSection title="Lens Flare">
+      <div className="mb-2 rounded-md bg-yellow-500/10 px-2.5 py-2 text-[11px] leading-relaxed text-yellow-400/90">
+        <span className="font-semibold">Preview only —</span> Lens flare is a screen-space effect
+        computed per cubemap face. It cannot seamlessly span face boundaries, so exported cubemaps
+        may show visible seams near the sun.
+      </div>
+
       <ToggleControl
         label="Enabled"
         checked={lensFlare.enabled}

@@ -101,16 +101,18 @@ export class GodRayPass {
    *
    * @param cubemapFBOHandle - Handle to the cubemap FBO (face already bound)
    * @param sunUV - The sun's projected UV position on this face
+   * @param sunVisible - Whether the sun is close enough to this face
    * @param faceSize - Resolution of each cubemap face
    * @param params - God ray parameters
    */
   apply(
     cubemapFBOHandle: WebGLFramebuffer,
     sunUV: [number, number],
+    sunVisible: boolean,
     faceSize: number,
     params: GodRayParams,
   ): void {
-    if (!params.enabled) return;
+    if (!params.enabled || !sunVisible) return;
 
     const { gl } = this;
     this._createFBO(faceSize);

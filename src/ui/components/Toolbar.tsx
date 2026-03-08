@@ -22,9 +22,11 @@ export function Toolbar({ onAboutClick }: ToolbarProps) {
     <div className="flex w-full items-center gap-5 text-[13px]">
       {/* App title */}
       <div className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-[11px] font-bold text-white shadow-md shadow-accent/20">
-          GSE
-        </div>
+        <img
+          src="/images/Logo.png"
+          alt="Geocore Stellar Engine"
+          className="h-6 w-6 rounded-md shadow-md shadow-accent/20"
+        />
         <span className="font-semibold tracking-tight text-text-primary">
           Geocore Stellar Engine
         </span>

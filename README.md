@@ -18,6 +18,14 @@ Built for [Geocore](https://geocore.fun) — a 3D geography game simulating view
 
 ---
 
+## Screenshots
+
+|                                                                       |                                                                       |                                                                       |
+| :-------------------------------------------------------------------: | :-------------------------------------------------------------------: | :-------------------------------------------------------------------: |
+| ![Screenshot 1](public/images/GeocoreStellarEngine_Screenshot-01.png) | ![Screenshot 2](public/images/GeocoreStellarEngine_Screenshot-02.png) | ![Screenshot 3](public/images/GeocoreStellarEngine_Screenshot-03.png) |
+
+---
+
 ## Features
 
 ### Render Layers (10 layers)

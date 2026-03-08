@@ -43,9 +43,11 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/5 px-5 pt-5 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-[15px] font-bold text-white shadow-lg shadow-accent/20">
-              GSE
-            </div>
+            <img
+              src="/images/Logo.png"
+              alt="Geocore Stellar Engine"
+              className="h-10 w-10 rounded-xl shadow-lg shadow-accent/20"
+            />
             <div>
               <h2 className="text-[15px] font-semibold text-text-primary">
                 Geocore Stellar Engine

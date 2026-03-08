@@ -19,6 +19,11 @@ uniform float uWeight;         // Individual sample weight
 #define NUM_SAMPLES 64
 
 void main() {
+    if (uSunVisible < 0.5) {
+        fragColor = vec4(0.0);
+        return;
+    }
+
     // Direction from current pixel toward sun
     vec2 deltaUV = (uSunUV - vUV) * uDensity / float(NUM_SAMPLES);
     vec2 sampleUV = vUV;
@@ -37,13 +42,12 @@ void main() {
         illuminationDecay *= uDecay;
     }
 
-    // Analytical radial glow from sun — provides smooth cross-face continuity.
-    // On the sun's face the scene-based radial blur dominates; on adjacent
-    // faces where the scene has no bright sun pixels, this analytical term
-    // fills in a smooth volumetric glow that matches at face boundaries.
-    float sunDist = length(vUV - uSunUV);
-    float glow = exp(-sunDist * 2.5) * uWeight * 0.4;
-    color += vec3(glow);
+    // Edge fade: soften when sun is near face boundary to reduce seams
+    float offEdge = max(
+        max(-uSunUV.x, uSunUV.x - 1.0),
+        max(-uSunUV.y, uSunUV.y - 1.0)
+    );
+    float edgeFade = 1.0 - smoothstep(0.0, 0.4, offEdge);
 
-    fragColor = vec4(color * uExposure, 1.0);
+    fragColor = vec4(color * uExposure * edgeFade, 1.0);
 }

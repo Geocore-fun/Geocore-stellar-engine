@@ -11,6 +11,12 @@ export function GodRayPanel() {
 
   return (
     <PanelSection title="God Rays">
+      <div className="mb-2 rounded-md bg-yellow-500/10 px-2.5 py-2 text-[11px] leading-relaxed text-yellow-400/90">
+        <span className="font-semibold">Preview only —</span> God rays are a screen-space effect
+        that cannot wrap across cubemap face boundaries. They will appear on the face containing the
+        sun but may show visible seams in exported cubemaps.
+      </div>
+
       <ToggleControl
         label="Enabled"
         checked={godRays.enabled}
