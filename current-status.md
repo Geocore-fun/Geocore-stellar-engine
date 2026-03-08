@@ -1,7 +1,7 @@
 # SkyboxGenerator — Current Status
 
-**Last Updated:** 2026-03-08 — M2 Phase 2.1 + 2.2 Complete  
-**Status:** 🔄 M2 In Progress | Phase 2.1 ✅ + Phase 2.2 ✅ | Next: Phase 2.3 — Constellations
+**Last Updated:** 2026-03-08 — M2 Phase 2.1 + 2.2 + 2.3 Complete  
+**Status:** 🔄 M2 In Progress | Phase 2.1 ✅ + Phase 2.2 ✅ + Phase 2.3 ✅ | Next: Phase 2.4 — Named Star Labels
 
 ---
 
@@ -119,6 +119,28 @@
 - [x] Vitest: 59 tests passing (5 test suites)
 - [x] Production build: 100 modules, 284KB JS (90KB gzip), 27KB CSS (5.6KB gzip)
 
+### SVG Icon Extraction ✅
+
+- [x] Extracted 7 inline SVGs from TSX into modular `src/ui/icons/` components
+- [x] Files: `InfoIcon`, `CloseIcon`, `GlobeIcon`, `GitHubIcon`, `CubeIcon`, `ExternalLinkIcon`, `ChevronRightIcon`
+- [x] Shared `IconProps` interface (`size`, `className`), barrel index
+- [x] Updated `Toolbar.tsx`, `AboutModal.tsx`, `PanelSection.tsx` to use icon imports
+
+### Phase 2.3 — Constellation Data & Rendering ✅
+
+- [x] **2.3.1** `src/data/constellationData.ts` — All 88 IAU constellations with stick figure line segments as HIP ID pairs
+- [x] **2.3.4** `src/shaders/constellation-lines.vert.glsl` + `constellation-lines.frag.glsl` — GL_LINES with configurable color/opacity
+- [x] **2.3.4** `src/layers/ConstellationLayer.ts` — WebGL render layer (order 16), loads catalog → builds HIP→position lookup → GL_LINES
+- [x] **Zustand store** — `ConstellationParams` interface (enabled, opacity, lineColor, lineWidth), `setConstellations` action, persisted
+- [x] **2.3.8** `src/ui/panels/ConstellationPanel.tsx` — UI controls (toggle, opacity slider, color picker, line width)
+- [x] **Integration** — Pipeline (6 layers), App.tsx sync, panel in sidebar
+
+### Build Verification (Post M2.3)
+
+- [x] TypeScript: zero errors
+- [x] Vitest: 59 tests passing (5 test suites)
+- [x] Production build: 113 modules, 300KB JS (96KB gzip), 27KB CSS (5.7KB gzip)
+
 ---
 
 ## Current File Structure
@@ -139,6 +161,7 @@ SkyboxGenerator/
 │   │   ├── __tests__/
 │   │   │   ├── loadCatalog.test.ts # 11 coordinate/vertex tests
 │   │   │   └── starColor.test.ts   # 14 B-V→RGB conversion tests
+│   │   ├── constellationData.ts   # 88 IAU constellations + HIP ID line pairs
 │   │   ├── loadCatalog.ts         # Binary catalog loader + vertex builder
 │   │   └── starColor.ts           # B-V → RGB (Ballesteros + Helland + LUT)
 │   ├── export/
@@ -150,6 +173,7 @@ SkyboxGenerator/
 │   ├── layers/
 │   │   ├── BackgroundLayer.ts     # Solid color background (order 0)
 │   │   ├── CatalogStarLayer.ts    # Real HYG catalog stars (order 15)
+│   │   ├── ConstellationLayer.ts  # Constellation stick figures (order 16)
 │   │   ├── NebulaLayer.ts         # 4D noise nebula clouds (order 20)
 │   │   ├── PointStarLayer.ts      # Procedural point-sprite stars (order 10)
 │   │   ├── RenderLayer.ts         # Layer interface
@@ -161,12 +185,14 @@ SkyboxGenerator/
 │   │   ├── CubemapFBO.ts          # Cubemap framebuffer object
 │   │   ├── FullscreenQuad.ts      # Fullscreen quad geometry
 │   │   ├── Renderer.ts            # WebGL2 context manager
-│   │   ├── SkyboxPipeline.ts      # Pipeline orchestrator (5 layers)
+│   │   ├── SkyboxPipeline.ts      # Pipeline orchestrator (6 layers)
 │   │   └── index.ts
 │   ├── shaders/
 │   │   ├── background.frag.glsl
 │   │   ├── catalog-stars.frag.glsl # HYG catalog star fragment shader
 │   │   ├── catalog-stars.vert.glsl # HYG catalog star vertex shader
+│   │   ├── constellation-lines.frag.glsl # Constellation line fragment shader
+│   │   ├── constellation-lines.vert.glsl # Constellation line vertex shader
 │   │   ├── fullscreen.vert.glsl
 │   │   ├── nebula.frag.glsl
 │   │   ├── point-stars.frag.glsl
@@ -191,11 +217,22 @@ SkyboxGenerator/
 │   │   │   ├── Toolbar.tsx        # Header bar
 │   │   │   ├── Viewport.tsx       # WebGL canvas + orbit controls
 │   │   │   └── index.ts
+│   │   ├── icons/
+│   │   │   ├── ChevronRightIcon.tsx
+│   │   │   ├── CloseIcon.tsx
+│   │   │   ├── CubeIcon.tsx
+│   │   │   ├── ExternalLinkIcon.tsx
+│   │   │   ├── GitHubIcon.tsx
+│   │   │   ├── GlobeIcon.tsx
+│   │   │   ├── InfoIcon.tsx
+│   │   │   ├── types.ts           # Shared IconProps interface
+│   │   │   └── index.ts
 │   │   ├── layout/
 │   │   │   └── AppLayout.tsx      # 3-panel layout
 │   │   └── panels/
 │   │       ├── BackgroundPanel.tsx
 │   │       ├── CatalogStarPanel.tsx # HYG catalog star controls
+│   │       ├── ConstellationPanel.tsx # Constellation line controls
 │   │       ├── ExportPanel.tsx
 │   │       ├── NebulaPanel.tsx
 │   │       ├── PresetPanel.tsx
@@ -226,29 +263,28 @@ SkyboxGenerator/
 
 ## GLSL Shaders
 
-| Shader                     | Description                                             |
-| -------------------------- | ------------------------------------------------------- |
-| `fullscreen.vert.glsl`     | Clip-space quad → ray direction via inverse VP matrix   |
-| `background.frag.glsl`     | Solid color fill                                        |
-| `point-stars.vert.glsl`    | Per-vertex position/size/color from VBO, GL_POINTS      |
-| `point-stars.frag.glsl`    | Soft circular point sprites with brightness falloff     |
-| `catalog-stars.vert.glsl`  | HYG catalog stars — per-star position/size/color        |
-| `catalog-stars.frag.glsl`  | Airy-like core + halo glow profile for catalog stars    |
-| `nebula.frag.glsl`         | 4D simplex noise FBM, 3-color gradient, density/falloff |
-| `sun.frag.glsl`            | Angular disk + smoothstep corona + power-law glow       |
-| `skybox-preview.frag.glsl` | Cubemap texture sampling for viewport preview           |
+| Shader                          | Description                                             |
+| ------------------------------- | ------------------------------------------------------- |
+| `fullscreen.vert.glsl`          | Clip-space quad → ray direction via inverse VP matrix   |
+| `background.frag.glsl`          | Solid color fill                                        |
+| `point-stars.vert.glsl`         | Per-vertex position/size/color from VBO, GL_POINTS      |
+| `point-stars.frag.glsl`         | Soft circular point sprites with brightness falloff     |
+| `catalog-stars.vert.glsl`       | HYG catalog stars — per-star position/size/color        |
+| `catalog-stars.frag.glsl`       | Airy-like core + halo glow profile for catalog stars    |
+| `constellation-lines.vert.glsl` | Constellation stick figure line vertices                |
+| `constellation-lines.frag.glsl` | Configurable color + opacity for constellation lines    |
+| `nebula.frag.glsl`              | 4D simplex noise FBM, 3-color gradient, density/falloff |
+| `sun.frag.glsl`                 | Angular disk + smoothstep corona + power-law glow       |
+| `skybox-preview.frag.glsl`      | Cubemap texture sampling for viewport preview           |
 
 ---
 
 ## Next Step
 
-**Phase 2.3 — Constellation Data & Rendering**
+**Phase 2.4 — Named Star Labels / Constellation Boundaries (remaining M2 tasks)**
 
-- Task 2.3.1: Source and process constellation stick figure data (star ID pairs)
-- Task 2.3.2: Source and process IAU boundary polygon data
-- Task 2.3.3: JSON loader for line/boundary data
-- Task 2.3.4: GL_LINES rendering for stick figures
+- Task 2.2.5: Named star labels (Canvas 2D → texture atlas → billboard)
+- Task 2.3.2: IAU boundary polygon data (optional)
 - Task 2.3.5: Constellation boundary rendering (dashed lines)
-- Task 2.3.6: Constellation label rendering
-- Task 2.3.7: Per-constellation toggle UI
-- Task 2.3.8: ConstellationPanel.tsx
+- Task 2.3.6: Constellation label rendering (texture atlas approach)
+- Task 2.3.7: Per-constellation toggle UI (88 checkboxes with search)

@@ -5,6 +5,7 @@
  * expand/collapse with smooth chevron rotation.
  */
 
+import { ChevronRightIcon } from '@/ui/icons';
 import { useState, type ReactNode } from 'react';
 
 interface PanelSectionProps {
@@ -27,22 +28,10 @@ export function PanelSection({ title, defaultOpen = true, children }: PanelSecti
         }}
       >
         <span className="text-[13px] font-semibold text-text-primary">{title}</span>
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
+        <ChevronRightIcon
           className="text-text-muted transition-transform duration-200"
           style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-        >
-          <path
-            d="M4.5 2.5L8 6L4.5 9.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        />
       </button>
       {isOpen && (
         <div

@@ -166,18 +166,18 @@ UI panels ✅
 | 2.2.5 | Named star labels (Canvas 2D → texture atlas → billboard)         | 4h   | 🔲     |
 | 2.2.6 | `CatalogStarPanel.tsx` — UI controls                              | 3h   | ✅     |
 
-### Phase 2.3 — Constellation Data & Rendering
+### Phase 2.3 — Constellation Data & Rendering ✅
 
-| Task  | Description                                                           | Est. |
-| ----- | --------------------------------------------------------------------- | ---- |
-| 2.3.1 | Source and process constellation stick figure data (star ID pairs)    | 3h   |
-| 2.3.2 | Source and process IAU boundary polygon data                          | 3h   |
-| 2.3.3 | `constellations.ts` (data) — JSON loader for line/boundary data       | 2h   |
-| 2.3.4 | `constellations.ts` (layer) — GL_LINES rendering for stick figures    | 4h   |
-| 2.3.5 | Constellation boundary rendering (dashed lines via fragment shader)   | 3h   |
-| 2.3.6 | Constellation label rendering (texture atlas approach)                | 4h   |
-| 2.3.7 | Per-constellation toggle UI (88 constellation checkboxes with search) | 3h   |
-| 2.3.8 | `ConstellationPanel.tsx` — Full controls                              | 3h   |
+| Task  | Description                                                           | Est. | Status |
+| ----- | --------------------------------------------------------------------- | ---- | ------ |
+| 2.3.1 | Source and process constellation stick figure data (star ID pairs)    | 3h   | ✅     |
+| 2.3.2 | Source and process IAU boundary polygon data                          | 3h   | 🔲     |
+| 2.3.3 | `constellationData.ts` — 88 IAU constellations with HIP ID pairs      | 2h   | ✅     |
+| 2.3.4 | `ConstellationLayer.ts` — GL_LINES rendering for stick figures        | 4h   | ✅     |
+| 2.3.5 | Constellation boundary rendering (dashed lines via fragment shader)   | 3h   | 🔲     |
+| 2.3.6 | Constellation label rendering (texture atlas approach)                | 4h   | 🔲     |
+| 2.3.7 | Per-constellation toggle UI (88 constellation checkboxes with search) | 3h   | 🔲     |
+| 2.3.8 | `ConstellationPanel.tsx` — Full controls                              | 3h   | ✅     |
 
 **Milestone 2 Total Estimate: ~56 hours**
 
@@ -245,7 +245,7 @@ UI panels ✅
 | Milestone | Focus                           | Est. Hours | Cumulative | Status         |
 | --------- | ------------------------------- | ---------- | ---------- | -------------- |
 | **M1**    | MVP Core Generator              | ~140h      | 140h       | ✅ Complete    |
-| **M2**    | Real Star Data & Constellations | ~56h       | 196h       | ⬜ Not started |
+| **M2**    | Real Star Data & Constellations | ~56h       | 196h       | 🔄 In progress |
 | **M3**    | Advanced Visual Effects         | ~49h       | 245h       | ⬜ Not started |
 | **M4**    | Polish & Professional Features  | ~48h       | 293h       | ⬜ Not started |
 

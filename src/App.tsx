@@ -14,6 +14,7 @@ import { AppLayout } from '@/ui/layout';
 import {
   BackgroundPanel,
   CatalogStarPanel,
+  ConstellationPanel,
   ExportPanel,
   NebulaPanel,
   PresetPanel,
@@ -42,6 +43,7 @@ function App() {
   const camera = useAppStore((s) => s.camera);
   const starField = useAppStore((s) => s.starField);
   const catalogStars = useAppStore((s) => s.catalogStars);
+  const constellations = useAppStore((s) => s.constellations);
   const nebula = useAppStore((s) => s.nebula);
   const sun = useAppStore((s) => s.sun);
   const needsRedraw = useAppStore((s) => s.needsRedraw);
@@ -71,6 +73,12 @@ function App() {
     const catalogLayer = pipeline.getLayer('catalog-stars');
     if (catalogLayer) catalogLayer.enabled = catalogStars.enabled;
 
+    pipeline.getLayer('constellations')?.updateParams({
+      ...constellations,
+    });
+    const constellationLayer = pipeline.getLayer('constellations');
+    if (constellationLayer) constellationLayer.enabled = constellations.enabled;
+
     pipeline.getLayer('nebula')?.updateParams({
       ...nebula,
     });
@@ -82,7 +90,7 @@ function App() {
     });
     const sunLayer = pipeline.getLayer('sun');
     if (sunLayer) sunLayer.enabled = sun.enabled;
-  }, [faceSize, backgroundColor, starField, catalogStars, nebula, sun]);
+  }, [faceSize, backgroundColor, starField, catalogStars, constellations, nebula, sun]);
 
   // Main render loop
   const renderFrame = useCallback(() => {
@@ -129,7 +137,7 @@ function App() {
     return () => {
       if (redrawTimerRef.current) clearTimeout(redrawTimerRef.current);
     };
-  }, [seed, faceSize, backgroundColor, starField, catalogStars, nebula, sun]);
+  }, [seed, faceSize, backgroundColor, starField, catalogStars, constellations, nebula, sun]);
 
   // Stable callback — only stores the canvas ref, actual init happens in useEffect
   const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
@@ -224,6 +232,7 @@ function App() {
             <BackgroundPanel />
             <StarFieldPanel />
             <CatalogStarPanel />
+            <ConstellationPanel />
             <NebulaPanel />
             <SunPanel />
             <ExportPanel onExport={handleExport} />
