@@ -62,11 +62,7 @@ export class LensFlarePass {
    * Apply lens flare to the currently bound cubemap face.
    * Uses purely additive blending — no scene copy needed.
    */
-  apply(
-    sunUV: [number, number],
-    faceSize: number,
-    params: LensFlareParams,
-  ): void {
+  apply(sunUV: [number, number], faceSize: number, params: LensFlareParams): void {
     if (!params.enabled) return;
 
     const { gl } = this;

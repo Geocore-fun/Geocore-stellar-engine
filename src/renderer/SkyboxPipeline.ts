@@ -254,11 +254,7 @@ export class SkyboxPipeline {
 
       // Lens flare (after bloom — analytical overlay)
       if (this.lensFlareParams.enabled && sunProj.visible) {
-        this.lensFlarePass.apply(
-          sunProj.uv,
-          this.renderer.faceSize,
-          this.lensFlareParams,
-        );
+        this.lensFlarePass.apply(sunProj.uv, this.renderer.faceSize, this.lensFlareParams);
       }
     }
 
