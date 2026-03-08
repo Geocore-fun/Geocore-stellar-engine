@@ -1,5 +1,8 @@
 /**
- * Collapsible panel section for sidebar controls.
+ * iOS-style collapsible panel section.
+ *
+ * Renders as a rounded card with a header that toggles
+ * expand/collapse with smooth chevron rotation.
  */
 
 import { useState, type ReactNode } from 'react';
@@ -14,20 +17,41 @@ export function PanelSection({ title, defaultOpen = true, children }: PanelSecti
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-border">
+    <div className="mx-3 my-1.5">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary"
+        className="flex w-full items-center justify-between rounded-t-lg px-3 py-2.5 text-left transition-colors hover:bg-bg-card-hover"
+        style={{
+          backgroundColor: 'var(--color-bg-card)',
+          borderRadius: isOpen ? '10px 10px 0 0' : '10px',
+        }}
       >
-        <span
-          className="inline-block transition-transform"
+        <span className="text-[13px] font-semibold text-text-primary">{title}</span>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          className="text-text-muted transition-transform duration-200"
           style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
         >
-          ▶
-        </span>
-        {title}
+          <path
+            d="M4.5 2.5L8 6L4.5 9.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </button>
-      {isOpen && <div className="px-3 pb-3">{children}</div>}
+      {isOpen && (
+        <div
+          className="rounded-b-lg px-3 pb-3 pt-1"
+          style={{ backgroundColor: 'var(--color-bg-card)' }}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }

@@ -38,6 +38,7 @@ export class BackgroundLayer implements RenderLayer {
     this.quad = new FullscreenQuad(gl);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   render(renderer: Renderer, _params: RenderParams): void {
     const { gl } = renderer;
     if (!this.program || !this.quad) return;

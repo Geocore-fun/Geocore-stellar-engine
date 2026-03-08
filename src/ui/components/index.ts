@@ -1,3 +1,4 @@
+export { ColorPickerControl } from './ColorPickerControl';
 export { PanelSection } from './PanelSection';
 export { SliderControl } from './SliderControl';
 export { ToggleControl } from './ToggleControl';

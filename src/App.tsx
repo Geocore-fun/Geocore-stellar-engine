@@ -10,7 +10,14 @@ import { SkyboxPipeline } from '@/renderer/SkyboxPipeline';
 import { useAppStore } from '@/state';
 import { Toolbar, Viewport } from '@/ui/components';
 import { AppLayout } from '@/ui/layout';
-import { ExportPanel, NebulaPanel, StarFieldPanel, SunPanel } from '@/ui/panels';
+import {
+  BackgroundPanel,
+  ExportPanel,
+  NebulaPanel,
+  PresetPanel,
+  StarFieldPanel,
+  SunPanel,
+} from '@/ui/panels';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function App() {
@@ -180,6 +187,8 @@ function App() {
       toolbar={<Toolbar />}
       sidebar={
         <>
+          <PresetPanel />
+          <BackgroundPanel />
           <StarFieldPanel />
           <NebulaPanel />
           <SunPanel />

@@ -1,5 +1,5 @@
 /**
- * Export panel with format selection and download button.
+ * Export panel with iOS-style format selection and download button.
  */
 
 import { useAppStore } from '@/state';
@@ -21,12 +21,12 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
   return (
     <PanelSection title="Export">
       {/* Format */}
-      <div className="flex flex-col gap-1 py-1">
-        <label className="text-xs text-text-secondary">Format</label>
+      <div className="flex flex-col gap-1.5 py-1.5">
+        <span className="text-[12px] text-text-label">Format</span>
         <select
           value={exportFormat}
           onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-          className="rounded-sm border border-border bg-bg-input px-1.5 py-1 text-xs text-text-primary"
+          className="rounded-md bg-bg-input px-2.5 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
         >
           <option value="png-individual">Individual PNGs (ZIP)</option>
           <option value="png-cross">Cross Layout PNG</option>
@@ -34,17 +34,17 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
       </div>
 
       {/* Resolution */}
-      <div className="flex flex-col gap-1 py-1">
-        <label className="text-xs text-text-secondary">Export Resolution</label>
+      <div className="flex flex-col gap-1.5 py-1.5">
+        <span className="text-[12px] text-text-label">Resolution</span>
         <select
           value={exportResolution}
           onChange={(e) => setExportResolution(parseInt(e.target.value, 10))}
-          className="rounded-sm border border-border bg-bg-input px-1.5 py-1 text-xs text-text-primary"
+          className="rounded-md bg-bg-input px-2.5 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
         >
-          <option value={512}>512×512</option>
-          <option value={1024}>1024×1024</option>
-          <option value={2048}>2048×2048</option>
-          <option value={4096}>4096×4096</option>
+          <option value={512}>512 × 512</option>
+          <option value={1024}>1024 × 1024</option>
+          <option value={2048}>2048 × 2048</option>
+          <option value={4096}>4096 × 4096</option>
         </select>
       </div>
 
@@ -52,9 +52,20 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
       <button
         onClick={onExport}
         disabled={isExporting}
-        className="mt-2 w-full rounded-sm bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+        className="relative mt-3 w-full overflow-hidden rounded-lg bg-accent px-4 py-2.5 text-[13px] font-semibold text-white shadow-lg transition-all hover:bg-accent-hover active:scale-[0.98] disabled:opacity-50"
+        style={{
+          boxShadow: isExporting ? 'none' : '0 2px 12px rgba(10, 132, 255, 0.3)',
+        }}
       >
-        {isExporting ? `Exporting... ${Math.round(exportProgress * 100)}%` : 'Export Skybox'}
+        {isExporting && (
+          <div
+            className="absolute inset-0 bg-accent-dim transition-all"
+            style={{ width: `${exportProgress * 100}%` }}
+          />
+        )}
+        <span className="relative">
+          {isExporting ? `Exporting… ${Math.round(exportProgress * 100)}%` : 'Export Skybox'}
+        </span>
       </button>
     </PanelSection>
   );

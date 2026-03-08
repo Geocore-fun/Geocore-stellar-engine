@@ -1,5 +1,8 @@
 /**
- * Toggle switch for boolean parameters.
+ * iOS-style toggle switch.
+ *
+ * Mimics the native iOS UISwitch with a pill track,
+ * circular white thumb with shadow, and smooth animation.
  */
 
 interface ToggleControlProps {
@@ -10,20 +13,23 @@ interface ToggleControlProps {
 
 export function ToggleControl({ label, checked, onChange }: ToggleControlProps) {
   return (
-    <div className="flex items-center justify-between py-1">
-      <label className="text-xs text-text-secondary">{label}</label>
+    <div className="flex items-center justify-between py-1.5">
+      <span className="text-[12px] text-text-label">{label}</span>
       <button
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
-          checked ? 'bg-accent' : 'bg-bg-input'
-        }`}
+        className="relative inline-flex h-[26px] w-[46px] shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200"
+        style={{
+          backgroundColor: checked ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)',
+        }}
       >
         <span
-          className={`inline-block h-3 w-3 rounded-full bg-white shadow transition-transform ${
-            checked ? 'translate-x-4' : 'translate-x-0.5'
-          }`}
+          className="pointer-events-none inline-block h-[22px] w-[22px] rounded-full bg-white transition-transform duration-200"
+          style={{
+            transform: checked ? 'translateX(22px)' : 'translateX(2px)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.3), 0 1px 1px rgba(0,0,0,0.15)',
+          }}
         />
       </button>
     </div>
