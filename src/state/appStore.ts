@@ -45,6 +45,16 @@ export interface ConstellationParams {
   lineColor: HexColor;
   /** Line width in pixels */
   lineWidth: number;
+  /** Set of visible constellation abbreviations (empty = all visible) */
+  visibleConstellations: string[];
+  /** Show constellation name labels */
+  showLabels: boolean;
+  /** Label opacity (0-1) */
+  labelOpacity: number;
+  /** Label color as hex */
+  labelColor: HexColor;
+  /** Label size multiplier */
+  labelScale: number;
 }
 
 /** Catalog star layer parameters (real HYG data) */
@@ -58,6 +68,16 @@ export interface CatalogStarParams {
   sizeScale: number;
   /** Blend mode: 'overlay' renders on top, 'replace' hides procedural stars */
   blendMode: 'overlay' | 'replace';
+  /** Show named star labels */
+  showLabels: boolean;
+  /** Named star label opacity */
+  labelOpacity: number;
+  /** Named star label color */
+  labelColor: HexColor;
+  /** Named star label size multiplier */
+  labelScale: number;
+  /** Maximum magnitude for showing labels */
+  labelMagnitudeLimit: number;
 }
 
 /** Sun layer parameters */
@@ -119,20 +139,21 @@ export interface AppState {
   requestRedraw: () => void;
   clearRedraw: () => void;
   randomizeSeed: () => void;
+  resetToDefaults: () => void;
 }
 
 /** Default parameter values */
-const DEFAULT_STAR_FIELD: StarFieldParams = {
+export const DEFAULT_STAR_FIELD: StarFieldParams = {
   enabled: true,
   count: 100000,
   minBrightness: 0.3,
   maxBrightness: 1.0,
-  minSize: 0.5,
-  maxSize: 2.5,
+  minSize: 0.4,
+  maxSize: 2.0,
   colorVariation: 0.15,
 };
 
-const DEFAULT_NEBULA: NebulaParams = {
+export const DEFAULT_NEBULA: NebulaParams = {
   enabled: true,
   color1: '#1a0533',
   color2: '#0a1628',
@@ -147,29 +168,39 @@ const DEFAULT_NEBULA: NebulaParams = {
   brightness: 0.6,
 };
 
-const DEFAULT_CONSTELLATIONS: ConstellationParams = {
-  enabled: true,
-  opacity: 0.3,
+export const DEFAULT_CONSTELLATIONS: ConstellationParams = {
+  enabled: false,
+  opacity: 0.25,
   lineColor: '#6688cc',
-  lineWidth: 1.0,
+  lineWidth: 0.8,
+  visibleConstellations: [],
+  showLabels: false,
+  labelOpacity: 0.5,
+  labelColor: '#8899bb',
+  labelScale: 0.7,
 };
 
-const DEFAULT_CATALOG_STARS: CatalogStarParams = {
+export const DEFAULT_CATALOG_STARS: CatalogStarParams = {
   enabled: true,
   magnitudeLimit: 6.5,
   brightness: 1.0,
-  sizeScale: 1.0,
+  sizeScale: 0.8,
   blendMode: 'overlay',
+  showLabels: false,
+  labelOpacity: 0.6,
+  labelColor: '#ccddee',
+  labelScale: 0.6,
+  labelMagnitudeLimit: 2.5,
 };
 
-const DEFAULT_SUN: SunParams = {
+export const DEFAULT_SUN: SunParams = {
   enabled: true,
   position: [1, 0.3, 0.5],
   color: '#fff5e0',
-  size: 0.02,
-  coronaSize: 0.08,
-  coronaIntensity: 0.7,
-  glowIntensity: 0.4,
+  size: 0.015,
+  coronaSize: 0.06,
+  coronaIntensity: 0.6,
+  glowIntensity: 0.35,
   limbDarkening: 0.6,
 };
 
@@ -247,6 +278,19 @@ export const useAppStore = create<AppState>()(
         clearRedraw: () => set({ needsRedraw: false }),
         randomizeSeed: () =>
           set({ seed: Math.floor(Math.random() * 2147483647), needsRedraw: true }),
+        resetToDefaults: () =>
+          set({
+            seed: 42,
+            faceSize: 1024,
+            backgroundColor: '#000000',
+            camera: { yaw: 0, pitch: 0, fov: 75 },
+            starField: { ...DEFAULT_STAR_FIELD },
+            catalogStars: { ...DEFAULT_CATALOG_STARS },
+            constellations: { ...DEFAULT_CONSTELLATIONS },
+            nebula: { ...DEFAULT_NEBULA },
+            sun: { ...DEFAULT_SUN },
+            needsRedraw: true,
+          }),
       }),
       {
         name: 'skybox-generator-session',

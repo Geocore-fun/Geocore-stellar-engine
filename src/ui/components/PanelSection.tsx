@@ -14,7 +14,7 @@ interface PanelSectionProps {
   children: ReactNode;
 }
 
-export function PanelSection({ title, defaultOpen = true, children }: PanelSectionProps) {
+export function PanelSection({ title, defaultOpen = false, children }: PanelSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (

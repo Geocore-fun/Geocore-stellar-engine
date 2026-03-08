@@ -1,7 +1,7 @@
 # SkyboxGenerator — Current Status
 
-**Last Updated:** 2026-03-08 — M2 Phase 2.1 + 2.2 + 2.3 Complete  
-**Status:** 🔄 M2 In Progress | Phase 2.1 ✅ + Phase 2.2 ✅ + Phase 2.3 ✅ | Next: Phase 2.4 — Named Star Labels
+**Last Updated:** 2026-03-08 — M2 Phase 2.1 + 2.2 + 2.3 Complete + Labels & Per-Constellation UI  
+**Status:** 🔄 M2 In Progress | Phase 2.1 ✅ + Phase 2.2 ✅ + Phase 2.3 ✅ | Next: Constellation boundaries
 
 ---
 
@@ -281,10 +281,16 @@ SkyboxGenerator/
 
 ## Next Step
 
-**Phase 2.4 — Named Star Labels / Constellation Boundaries (remaining M2 tasks)**
+**Phase 2.4 — Remaining M2 Tasks**
 
-- Task 2.2.5: Named star labels (Canvas 2D → texture atlas → billboard)
 - Task 2.3.2: IAU boundary polygon data (optional)
 - Task 2.3.5: Constellation boundary rendering (dashed lines)
-- Task 2.3.6: Constellation label rendering (texture atlas approach)
-- Task 2.3.7: Per-constellation toggle UI (88 checkboxes with search)
+
+### Recently Completed
+
+- ✅ Task 2.2.5: Named star labels (Canvas 2D → texture atlas → billboard)
+- ✅ Task 2.3.6: Constellation label rendering (texture atlas approach)
+- ✅ Task 2.3.7: Per-constellation toggle UI (88 checkboxes with search)
+- ✅ FOV slider control in toolbar
+- ✅ Sidebar widened to w-96
+- ✅ Vite dev server port set to 5180

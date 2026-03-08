@@ -8,7 +8,9 @@
 import type { CubemapFaceData } from '@/export';
 import { BackgroundLayer } from '@/layers/BackgroundLayer';
 import { CatalogStarLayer } from '@/layers/CatalogStarLayer';
+import { ConstellationLabelLayer } from '@/layers/ConstellationLabelLayer';
 import { ConstellationLayer } from '@/layers/ConstellationLayer';
+import { NamedStarLabelLayer } from '@/layers/NamedStarLabelLayer';
 import { NebulaLayer } from '@/layers/NebulaLayer';
 import { PointStarLayer } from '@/layers/PointStarLayer';
 import type { RenderLayer, RenderParams } from '@/layers/RenderLayer';
@@ -44,8 +46,10 @@ export class SkyboxPipeline {
     this.layers = [
       new BackgroundLayer(),
       new PointStarLayer(),
+      new NamedStarLabelLayer(),
       new CatalogStarLayer(),
       new ConstellationLayer(),
+      new ConstellationLabelLayer(),
       new NebulaLayer(),
       new SunLayer(),
     ];

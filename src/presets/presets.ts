@@ -5,7 +5,18 @@
  * and import/export as JSON files.
  */
 
-import type { NebulaParams, StarFieldParams, SunParams } from '@/state/appStore';
+import {
+  DEFAULT_CATALOG_STARS,
+  DEFAULT_CONSTELLATIONS,
+  DEFAULT_NEBULA,
+  DEFAULT_STAR_FIELD,
+  DEFAULT_SUN,
+  type CatalogStarParams,
+  type ConstellationParams,
+  type NebulaParams,
+  type StarFieldParams,
+  type SunParams,
+} from '@/state/appStore';
 import type { HexColor } from '@/types';
 
 /** A snapshot of all generator parameters (no UI / camera / export state). */
@@ -16,6 +27,8 @@ export interface PresetData {
   starField: StarFieldParams;
   nebula: NebulaParams;
   sun: SunParams;
+  catalogStars?: CatalogStarParams;
+  constellations?: ConstellationParams;
 }
 
 export interface Preset {
@@ -26,6 +39,22 @@ export interface Preset {
 }
 
 // ── Built-in presets ────────────────────────────────────────────
+
+const DEFAULT: Preset = {
+  id: 'default',
+  name: 'Default',
+  builtIn: true,
+  data: {
+    seed: 42,
+    faceSize: 1024,
+    backgroundColor: '#000000',
+    starField: { ...DEFAULT_STAR_FIELD },
+    nebula: { ...DEFAULT_NEBULA },
+    sun: { ...DEFAULT_SUN },
+    catalogStars: { ...DEFAULT_CATALOG_STARS },
+    constellations: { ...DEFAULT_CONSTELLATIONS },
+  },
+};
 
 const DEEP_SPACE: Preset = {
   id: 'deep-space',
@@ -247,7 +276,14 @@ const BLUE_GIANT: Preset = {
   },
 };
 
-export const BUILT_IN_PRESETS: Preset[] = [DEEP_SPACE, MILKY_WAY, SUNSET_NEBULA, BLUE_GIANT, VOID];
+export const BUILT_IN_PRESETS: Preset[] = [
+  DEFAULT,
+  DEEP_SPACE,
+  MILKY_WAY,
+  SUNSET_NEBULA,
+  BLUE_GIANT,
+  VOID,
+];
 
 // ── localStorage helpers ────────────────────────────────────────
 

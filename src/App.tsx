@@ -73,11 +73,31 @@ function App() {
     const catalogLayer = pipeline.getLayer('catalog-stars');
     if (catalogLayer) catalogLayer.enabled = catalogStars.enabled;
 
+    pipeline.getLayer('named-star-labels')?.updateParams({
+      enabled: catalogStars.showLabels,
+      opacity: catalogStars.labelOpacity,
+      color: catalogStars.labelColor,
+      scale: catalogStars.labelScale,
+      magnitudeLimit: catalogStars.labelMagnitudeLimit,
+    });
+    const namedLabelLayer = pipeline.getLayer('named-star-labels');
+    if (namedLabelLayer) namedLabelLayer.enabled = catalogStars.enabled && catalogStars.showLabels;
+
     pipeline.getLayer('constellations')?.updateParams({
       ...constellations,
     });
     const constellationLayer = pipeline.getLayer('constellations');
     if (constellationLayer) constellationLayer.enabled = constellations.enabled;
+
+    pipeline.getLayer('constellation-labels')?.updateParams({
+      enabled: constellations.showLabels,
+      opacity: constellations.labelOpacity,
+      color: constellations.labelColor,
+      scale: constellations.labelScale,
+      visibleConstellations: constellations.visibleConstellations,
+    });
+    const labelLayer = pipeline.getLayer('constellation-labels');
+    if (labelLayer) labelLayer.enabled = constellations.enabled && constellations.showLabels;
 
     pipeline.getLayer('nebula')?.updateParams({
       ...nebula,

@@ -26,6 +26,8 @@ export interface ConstellationParams {
   lineColor: HexColor;
   /** Line width in pixels (some GPUs clamp to 1) */
   lineWidth: number;
+  /** Set of visible constellation abbreviations (empty = all visible) */
+  visibleConstellations: string[];
 }
 
 const DEFAULT_PARAMS: ConstellationParams = {
@@ -33,6 +35,7 @@ const DEFAULT_PARAMS: ConstellationParams = {
   opacity: 0.3,
   lineColor: '#6688cc',
   lineWidth: 1.0,
+  visibleConstellations: [],
 };
 
 export class ConstellationLayer implements RenderLayer {
@@ -60,6 +63,8 @@ export class ConstellationLayer implements RenderLayer {
   private loadError: string | null = null;
   /** HIP ID → 3D position lookup table */
   private hipMap: Map<number, [number, number, number]> | null = null;
+  /** Last visible constellations set (for change detection) */
+  private lastVisibleKey = '';
 
   init(renderer: Renderer): void {
     this.gl = renderer.gl;
@@ -113,7 +118,16 @@ export class ConstellationLayer implements RenderLayer {
     let resolvedLines = 0;
     let missingLines = 0;
 
+    // Filter constellations by visibility
+    const visibleSet =
+      this.params.visibleConstellations.length > 0
+        ? new Set(this.params.visibleConstellations)
+        : null; // null means all visible
+
     for (const constellation of CONSTELLATIONS) {
+      // Skip if not in visible set (when filter is active)
+      if (visibleSet && !visibleSet.has(constellation.abbr)) continue;
+
       for (const [hip1, hip2] of constellation.lines) {
         const pos1 = this.hipMap.get(hip1);
         const pos2 = this.hipMap.get(hip2);
@@ -189,7 +203,15 @@ export class ConstellationLayer implements RenderLayer {
     for (const [key, value] of Object.entries(params)) {
       if (key in this.params) {
         const k = key as keyof ConstellationParams;
-        if (this.params[k] !== value) {
+        if (k === 'visibleConstellations') {
+          const newVisible = value as string[];
+          const newKey = [...newVisible].sort().join(',');
+          if (newKey !== this.lastVisibleKey) {
+            this.params.visibleConstellations = newVisible;
+            this.lastVisibleKey = newKey;
+            this.needsRebuild = true;
+          }
+        } else if (this.params[k] !== value) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this.params as any)[k] = value;
         }

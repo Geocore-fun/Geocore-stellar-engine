@@ -3,7 +3,7 @@
  */
 
 import { useAppStore } from '@/state';
-import { PanelSection, SliderControl, ToggleControl } from '@/ui/components';
+import { ColorPickerControl, PanelSection, SliderControl, ToggleControl } from '@/ui/components';
 
 export function CatalogStarPanel() {
   const catalogStars = useAppStore((s) => s.catalogStars);
@@ -76,6 +76,59 @@ export function CatalogStarPanel() {
           <div className="text-xs text-muted -mt-0.5 mb-1 px-1 opacity-70">
             Overlay: adds to procedural stars. Replace: hides them.
           </div>
+
+          <div className="mt-1 mb-1 h-px bg-border" />
+
+          {/* Named Star Labels */}
+          <ToggleControl
+            label="Star Labels"
+            checked={catalogStars.showLabels}
+            onChange={(showLabels) => setCatalogStars({ showLabels })}
+          />
+
+          {catalogStars.showLabels && (
+            <>
+              <SliderControl
+                label="Label Mag Limit"
+                value={catalogStars.labelMagnitudeLimit}
+                min={0.0}
+                max={5.0}
+                step={0.1}
+                format={(v) => v.toFixed(1)}
+                onChange={(labelMagnitudeLimit) => setCatalogStars({ labelMagnitudeLimit })}
+              />
+
+              <div className="text-xs text-muted -mt-1 mb-1 px-1 opacity-70">
+                Stars brighter than this magnitude get labels.
+              </div>
+
+              <SliderControl
+                label="Label Opacity"
+                value={catalogStars.labelOpacity}
+                min={0.1}
+                max={1.0}
+                step={0.05}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={(labelOpacity) => setCatalogStars({ labelOpacity })}
+              />
+
+              <ColorPickerControl
+                label="Label Color"
+                value={catalogStars.labelColor}
+                onChange={(labelColor) => setCatalogStars({ labelColor })}
+              />
+
+              <SliderControl
+                label="Label Size"
+                value={catalogStars.labelScale}
+                min={0.3}
+                max={2.0}
+                step={0.1}
+                format={(v) => `${v.toFixed(1)}×`}
+                onChange={(labelScale) => setCatalogStars({ labelScale })}
+              />
+            </>
+          )}
         </>
       )}
     </PanelSection>

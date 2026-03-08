@@ -32,6 +32,8 @@ export function PresetPanel() {
       starField: { ...s.starField },
       nebula: { ...s.nebula },
       sun: { ...s.sun },
+      catalogStars: { ...s.catalogStars },
+      constellations: { ...s.constellations },
     };
   }, []);
 
@@ -44,6 +46,13 @@ export function PresetPanel() {
     s.setStarField(data.starField);
     s.setNebula(data.nebula);
     s.setSun(data.sun);
+    if (data.catalogStars) s.setCatalogStars(data.catalogStars);
+    if (data.constellations) s.setConstellations(data.constellations);
+  }, []);
+
+  /** Reset everything to factory defaults. */
+  const handleResetAll = useCallback(() => {
+    useAppStore.getState().resetToDefaults();
   }, []);
 
   const handleSave = useCallback(() => {
@@ -162,6 +171,17 @@ export function PresetPanel() {
           className="w-full rounded-md bg-white/5 px-3 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all hover:bg-white/10 hover:ring-white/15 active:scale-95"
         >
           Import from JSON
+        </button>
+
+        {/* Divider */}
+        <div className="my-1 h-px bg-border" />
+
+        {/* Reset All */}
+        <button
+          onClick={handleResetAll}
+          className="w-full rounded-md bg-red-500/10 px-3 py-1.5 text-[12px] text-red-400 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20 hover:ring-red-500/30 active:scale-95"
+        >
+          Reset All to Defaults
         </button>
         <input
           ref={fileInputRef}

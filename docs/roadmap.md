@@ -163,7 +163,7 @@ UI panels ✅
 | 2.2.2 | Catalog star shaders (`.vert` + `.frag`) — per-star size/color    | 3h   | ✅     |
 | 2.2.3 | Dynamic magnitude filtering (rebuild vertex data on param change) | 3h   | ✅     |
 | 2.2.4 | Overlay modes: replace vs blend with procedural stars             | 2h   | ✅     |
-| 2.2.5 | Named star labels (Canvas 2D → texture atlas → billboard)         | 4h   | 🔲     |
+| 2.2.5 | Named star labels (Canvas 2D → texture atlas → billboard)         | 4h   | ✅     |
 | 2.2.6 | `CatalogStarPanel.tsx` — UI controls                              | 3h   | ✅     |
 
 ### Phase 2.3 — Constellation Data & Rendering ✅
@@ -175,8 +175,8 @@ UI panels ✅
 | 2.3.3 | `constellationData.ts` — 88 IAU constellations with HIP ID pairs      | 2h   | ✅     |
 | 2.3.4 | `ConstellationLayer.ts` — GL_LINES rendering for stick figures        | 4h   | ✅     |
 | 2.3.5 | Constellation boundary rendering (dashed lines via fragment shader)   | 3h   | 🔲     |
-| 2.3.6 | Constellation label rendering (texture atlas approach)                | 4h   | 🔲     |
-| 2.3.7 | Per-constellation toggle UI (88 constellation checkboxes with search) | 3h   | 🔲     |
+| 2.3.6 | Constellation label rendering (texture atlas approach)                | 4h   | ✅     |
+| 2.3.7 | Per-constellation toggle UI (88 constellation checkboxes with search) | 3h   | ✅     |
 | 2.3.8 | `ConstellationPanel.tsx` — Full controls                              | 3h   | ✅     |
 
 **Milestone 2 Total Estimate: ~56 hours**

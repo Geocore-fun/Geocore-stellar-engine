@@ -15,6 +15,8 @@ export function Toolbar({ onAboutClick }: ToolbarProps) {
   const randomizeSeed = useAppStore((s) => s.randomizeSeed);
   const faceSize = useAppStore((s) => s.faceSize);
   const setFaceSize = useAppStore((s) => s.setFaceSize);
+  const camera = useAppStore((s) => s.camera);
+  const setCamera = useAppStore((s) => s.setCamera);
 
   return (
     <div className="flex w-full items-center gap-5 text-[13px]">
@@ -64,6 +66,27 @@ export function Toolbar({ onAboutClick }: ToolbarProps) {
           <option value={2048}>2048px</option>
           <option value={4096}>4096px</option>
         </select>
+      </div>
+
+      {/* Divider */}
+      <div className="h-4 w-px bg-white/8" />
+
+      {/* FOV control */}
+      <div className="flex items-center gap-2">
+        <span className="text-text-muted">FOV</span>
+        <input
+          type="range"
+          min={20}
+          max={120}
+          step={1}
+          value={camera.fov}
+          onChange={(e) => setCamera({ fov: parseFloat(e.target.value) })}
+          className="w-24 accent-accent"
+          title={`Field of View: ${Math.round(camera.fov)}°`}
+        />
+        <span className="min-w-8 text-right font-mono text-[11px] text-text-secondary">
+          {Math.round(camera.fov)}°
+        </span>
       </div>
 
       {/* Spacer */}
