@@ -68,9 +68,6 @@ export class BloomPass {
   private uCompositeBloom: WebGLUniformLocation | null;
   private uCompositeIntensity: WebGLUniformLocation | null;
 
-  // Uniform locations — blit
-  private uBlitTexture: WebGLUniformLocation | null;
-
   private currentSize = 0;
 
   constructor(renderer: Renderer, faceSize: number) {
@@ -105,7 +102,7 @@ void main() { fragColor = texture(uTexture, vUV); }
     this.uCompositeBloom = gl.getUniformLocation(this.compositeProgram, 'uBloom');
     this.uCompositeIntensity = gl.getUniformLocation(this.compositeProgram, 'uIntensity');
 
-    this.uBlitTexture = gl.getUniformLocation(this.blitProgram, 'uTexture');
+    // uBlitTexture not needed — blit uses texture unit 0 default
 
     // Create FBOs
     this._createFBOs(faceSize);

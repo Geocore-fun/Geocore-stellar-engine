@@ -77,7 +77,6 @@ export class ConstellationLabelLayer implements RenderLayer {
   private glyphs: GlyphInfo[] = [];
   private hipMap: Map<number, [number, number, number]> | null = null;
   private centroids: Map<string, [number, number, number]> = new Map();
-  private vertexCount = 0;
   private indexCount = 0;
   private needsRebuild = true;
   private loading = false;
@@ -333,7 +332,7 @@ export class ConstellationLabelLayer implements RenderLayer {
     const vData = new Float32Array(vertices);
     const iData = new Uint16Array(indices);
 
-    this.vertexCount = quadIndex * 4;
+    // vertexCount = quadIndex * 4 (tracked implicitly via indexCount)
     this.indexCount = indices.length;
 
     gl.bindVertexArray(this.vao);

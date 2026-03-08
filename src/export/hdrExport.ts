@@ -50,8 +50,8 @@ function encodeRLEScanline(scanline: Uint8Array, width: number): Uint8Array {
     let pos = 0;
     while (pos < width) {
       // Look for a run of identical values
-      let runStart = pos;
-      let runVal = scanline[runStart * 4 + ch];
+      const runStart = pos;
+      const runVal = scanline[runStart * 4 + ch];
       let runLen = 1;
 
       while (runStart + runLen < width && runLen < 127) {
