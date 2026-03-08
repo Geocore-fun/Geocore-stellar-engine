@@ -19,14 +19,20 @@ const GRAPH_HEIGHT = CANVAS_HEIGHT - GRAPH_MARGIN * 2;
 interface HistogramOverlayProps {
   /** Histogram data to display (null = nothing drawn) */
   data: HistogramData | null;
+  /** Called when overlay visibility changes (so parent can gate expensive readback) */
+  onVisibilityChange?: (visible: boolean) => void;
 }
 
 type ChannelMode = 'rgb' | 'luminance';
 
-export function HistogramOverlay({ data }: HistogramOverlayProps) {
+export function HistogramOverlay({ data, onVisibilityChange }: HistogramOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mode, setMode] = useState<ChannelMode>('rgb');
   const [visible, setVisible] = useState(false);
+  const onVisChangeRef = useRef(onVisibilityChange);
+  useEffect(() => {
+    onVisChangeRef.current = onVisibilityChange;
+  });
 
   // Toggle visibility with H key
   useEffect(() => {
@@ -35,7 +41,11 @@ export function HistogramOverlay({ data }: HistogramOverlayProps) {
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       if (e.key.toLowerCase() === 'h') {
         e.preventDefault();
-        setVisible((v) => !v);
+        setVisible((v) => {
+          const next = !v;
+          onVisChangeRef.current?.(next);
+          return next;
+        });
       }
     }
     document.addEventListener('keydown', handleKey);

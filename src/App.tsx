@@ -61,6 +61,8 @@ function App() {
   // About modal state (rendered at root level to avoid stacking context issues)
   const [showAbout, setShowAbout] = useState(false);
   const [histogramData, setHistogramData] = useState<HistogramData | null>(null);
+  const histogramVisibleRef = useRef(false);
+  const lastHistogramTimeRef = useRef(0);
   const [canvasDims, setCanvasDims] = useState({ w: 0, h: 0 });
 
   // Subscribe to store values
@@ -188,10 +190,16 @@ function App() {
       clearRedraw();
     }
 
-    // Async histogram readback (PBO-based, 1-frame latency, no GPU stall)
-    const asyncPixels = pipeline.readFacePixelsAsync('pz');
-    if (asyncPixels) {
-      setHistogramData(computeHistogram(asyncPixels));
+    // Async histogram readback — gated on visibility + throttled to ~10fps
+    if (histogramVisibleRef.current) {
+      const now = performance.now();
+      if (now - lastHistogramTimeRef.current > 100) {
+        const asyncPixels = pipeline.readFacePixelsAsync('pz');
+        if (asyncPixels) {
+          setHistogramData(computeHistogram(asyncPixels));
+          lastHistogramTimeRef.current = now;
+        }
+      }
     }
 
     pipeline.renderPreview(camera.yaw, camera.pitch, camera.fov);
@@ -447,7 +455,12 @@ function App() {
           <>
             <Viewport onCanvasReady={handleCanvasReady} />
             <PerfOverlay />
-            <HistogramOverlay data={histogramData} />
+            <HistogramOverlay
+              data={histogramData}
+              onVisibilityChange={(v) => {
+                histogramVisibleRef.current = v;
+              }}
+            />
             <ComparisonOverlay
               onCapture={handleCapture}
               canvasWidth={canvasDims.w}
