@@ -138,6 +138,10 @@ function App() {
     syncLayers();
     pipelineRef.current.renderCubemap(seed);
 
+    // Render preview immediately so viewport isn't blank on first load
+    const cam = useAppStore.getState().camera;
+    pipelineRef.current.renderPreview(cam.yaw, cam.pitch, cam.fov);
+
     rafRef.current = requestAnimationFrame(renderFrame);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
