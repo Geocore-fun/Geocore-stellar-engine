@@ -23,9 +23,11 @@ export function Toolbar({ onAboutClick }: ToolbarProps) {
       {/* App title */}
       <div className="flex items-center gap-2">
         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-[11px] font-bold text-white shadow-md shadow-accent/20">
-          SG
+          GSE
         </div>
-        <span className="font-semibold tracking-tight text-text-primary">Skybox Generator</span>
+        <span className="font-semibold tracking-tight text-text-primary">
+          Geocore Stellar Engine
+        </span>
       </div>
 
       {/* Divider */}

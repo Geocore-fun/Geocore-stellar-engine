@@ -194,8 +194,9 @@ export class SkyboxPipeline {
     const uvX = ndcX * 0.5 + 0.5;
     const uvY = ndcY * 0.5 + 0.5;
 
-    // Visible if within extended bounds (allow off-screen flare effects)
-    const visible = uvX >= -0.5 && uvX <= 1.5 && uvY >= -0.5 && uvY <= 1.5;
+    // Sun is "visible" on any face where it projects forward (w > 0).
+    // Individual effects handle their own falloff analytically.
+    const visible = true;
 
     return { uv: [uvX, uvY], visible };
   }
@@ -233,7 +234,6 @@ export class SkyboxPipeline {
         this.godRayPass.apply(
           this.cubemapFBO.glFramebuffer,
           sunProj.uv,
-          sunProj.visible,
           this.renderer.faceSize,
           this.godRayParams,
         );
@@ -256,7 +256,6 @@ export class SkyboxPipeline {
       if (this.lensFlareParams.enabled && sunProj.visible) {
         this.lensFlarePass.apply(
           sunProj.uv,
-          sunProj.visible,
           this.renderer.faceSize,
           this.lensFlareParams,
         );

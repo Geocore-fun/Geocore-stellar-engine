@@ -307,7 +307,7 @@ export const BUILT_IN_PRESETS: Preset[] = [
 
 // ── localStorage helpers ────────────────────────────────────────
 
-const STORAGE_KEY = 'skybox-generator-presets';
+const STORAGE_KEY = 'geocore-stellar-engine-presets';
 
 /** Load user-saved presets from localStorage. */
 export function loadUserPresets(): Preset[] {

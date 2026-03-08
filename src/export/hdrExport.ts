@@ -100,7 +100,7 @@ function encodeRLEScanline(scanline: Uint8Array, width: number): Uint8Array {
 function createHDRHeader(width: number, height: number): Uint8Array {
   const header =
     '#?RADIANCE\n' +
-    '# SkyboxGenerator HDR Export\n' +
+    '# Geocore Stellar Engine HDR Export\n' +
     'FORMAT=32-bit_rle_rgbe\n' +
     '\n' +
     `-Y ${height} +X ${width}\n`;

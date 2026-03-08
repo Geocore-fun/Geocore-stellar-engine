@@ -1,4 +1,4 @@
-# SkyboxGenerator — Implementation Roadmap
+# Geocore Stellar Engine — Implementation Roadmap
 
 **Last Updated:** 2025-07-15
 
@@ -27,7 +27,7 @@ UI panels ✅
 
 ## Milestone 1: MVP Core Generator ✅ COMPLETE
 
-> **Goal**: A fully functional skybox generator with procedural stars, sun, nebulae, interactive preview, and PNG cubemap export.
+> **Goal**: A fully functional stellar engine with procedural stars, sun, nebulae, interactive preview, and PNG cubemap export.
 >
 > **Status**: All phases complete. 34 unit tests passing. Production build clean (94 modules).
 

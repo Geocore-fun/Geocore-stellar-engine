@@ -503,7 +503,7 @@ export const useAppStore = create<AppState>()(
           }),
       }),
       {
-        name: 'skybox-generator-session',
+        name: 'geocore-stellar-engine-session',
         // Only persist generator parameters, not transient UI/export state
         partialize: (state) => ({
           seed: state.seed,

@@ -18,11 +18,6 @@ uniform float uHaloIntensity; // Halo ring brightness
 uniform float uChromatic;     // Chromatic aberration amount
 
 void main() {
-    if (uSunVisible < 0.5) {
-        fragColor = vec4(0.0);
-        return;
-    }
-
     vec2 center = vec2(0.5);
     vec2 ghostVec = center - uSunUV;
     vec3 flare = vec3(0.0);
@@ -82,12 +77,5 @@ void main() {
                  * 0.12;
     flare += vec3(streak);
 
-    // Edge fade: soften when sun is near face boundary
-    float offEdge = max(
-        max(-uSunUV.x, uSunUV.x - 1.0),
-        max(-uSunUV.y, uSunUV.y - 1.0)
-    );
-    float edgeFade = 1.0 - smoothstep(0.0, 0.4, offEdge);
-
-    fragColor = vec4(flare * uIntensity * edgeFade, 1.0);
+    fragColor = vec4(flare * uIntensity, 1.0);
 }

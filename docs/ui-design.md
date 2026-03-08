@@ -1,4 +1,4 @@
-# SkyboxGenerator — UI/UX Design Plan
+# Geocore Stellar Engine — UI/UX Design Plan
 
 ---
 

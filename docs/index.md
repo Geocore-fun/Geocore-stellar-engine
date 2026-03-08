@@ -1,13 +1,13 @@
-# SkyboxGenerator — Project Index
+# Geocore Stellar Engine — Project Index
 
-> A professional-grade, GPU-accelerated cubemap skybox generator for Unity game development.
+> A professional-grade, GPU-accelerated procedural skybox engine for low-earth orbit simulation and Unity game development.
 > Designed for creating photorealistic low-Earth-orbit space backgrounds with fine-grained control over every visual element.
 
 ---
 
 ## Purpose
 
-SkyboxGenerator is a desktop + browser tool that produces high-quality cubemap skyboxes representing deep space as seen from low Earth orbit. The primary use case is a geography trivia game in Unity with a 3D Earth at center — the skybox wraps around the Earth providing a realistic space backdrop (similar to how Google Earth renders its outer-space environment).
+Geocore Stellar Engine is a desktop + browser tool that produces high-quality cubemap skyboxes representing deep space as seen from low Earth orbit. The primary use case is a geography trivia game in Unity with a 3D Earth at center — the skybox wraps around the Earth providing a realistic space backdrop (similar to how Google Earth renders its outer-space environment).
 
 The tool offers unprecedented control over every visual parameter: star fields, sun, nebulae, constellations, the Milky Way, and more — exposed through sliders, color pickers, graphs, and presets. The final output is exported as a Unity-ready cubemap in multiple formats.
 
@@ -30,7 +30,7 @@ The tool offers unprecedented control over every visual parameter: star fields, 
 ## Project Folder Structure (Planned)
 
 ```
-SkyboxGenerator/
+GeoCoreStellarEngine/
 ├── docs/                          # Planning & reference documentation
 │   ├── index.md                   # This file
 │   ├── architecture.md

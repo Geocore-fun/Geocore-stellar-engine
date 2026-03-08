@@ -1,4 +1,4 @@
-# SkyboxGenerator — Tech Stack
+# Geocore Stellar Engine — Tech Stack
 
 ---
 
@@ -46,8 +46,8 @@
   - `@vitejs/plugin-react` — React Fast Refresh
 - **GLSL import pattern**:
   ```typescript
-  import vertexSrc from "./shaders/star.vert?raw";
-  import fragmentSrc from "./shaders/star.frag?raw";
+  import vertexSrc from './shaders/star.vert?raw';
+  import fragmentSrc from './shaders/star.frag?raw';
   ```
 
 ### Tauri 2
@@ -94,7 +94,7 @@
         updateSun: (p) => set({ sun: { ...get().sun, ...p } }),
         // ...
       }),
-      { name: "skybox-state" },
+      { name: 'skybox-state' },
     ),
   );
   ```

@@ -1,8 +1,15 @@
-# Skybox Generator
+# Geocore Stellar Engine
 
-A professional procedural cubemap skybox generator built for game development. Generate stunning space backgrounds with customizable stars, nebulae, and sun effects, then export as cubemap PNGs for Unity and other game engines.
+A GPU-accelerated procedural skybox engine for low-earth orbit simulation. Generate photorealistic space backgrounds — complete with the Milky Way, 100K+ catalog stars, 88 IAU constellations, volumetric nebulae, sun with god rays and lens flare — then export as cubemap PNGs or HDR for Unity and other game engines.
 
-Built for [Geocore](https://geocore.fun) — a 3D geography game.
+Built for [Geocore](https://geocore.fun) — a 3D geography game simulating views from low-earth orbit.
+
+[![Website](https://img.shields.io/badge/Website-anahatmudgal.com-blue?style=flat-square)](https://anahatmudgal.com)
+[![GitHub](https://img.shields.io/badge/GitHub-anahatm-181717?style=flat-square&logo=github)](https://github.com/anahatm)
+[![Geocore](https://img.shields.io/badge/Geocore-geocore.fun-green?style=flat-square)](https://geocore.fun)
+[![Geocore Technologies](https://img.shields.io/badge/Org-Geocore--Technologies-orange?style=flat-square&logo=github)](https://github.com/Geocore-fun)
+[![Project Page](https://img.shields.io/badge/Project-Geocore%20Stellar%20Engine-purple?style=flat-square)](https://www.anahatmudgal.com/development/geocore-stellar-engine)
+[![Source Code](https://img.shields.io/badge/Repo-geocore--stellar--engine-181717?style=flat-square&logo=github)](https://github.com/Geocore-fun/geocore-stellar-engine)
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
@@ -13,16 +20,46 @@ Built for [Geocore](https://geocore.fun) — a 3D geography game.
 
 ## Features
 
-- **Procedural Generation** — Seeded PRNG ensures reproducible skyboxes for any given seed
-- **4 Render Layers** — Background, point stars (100K+), nebula (4D noise FBM), sun (corona + glow)
-- **Real-time Preview** — Orbit camera with yaw/pitch/FOV controls in a live cubemap preview
-- **Cubemap Export** — Individual face PNGs (ZIP) or cross-layout composite PNG
+### Render Layers (10 layers)
+
+- **Milky Way** — Physically-based galactic plane with customizable tilt, core brightness, and arm structure
+- **Catalog Stars** — 119,614 real stars from the HYG v4.2 database with accurate B-V color mapping and magnitude-based sizing
+- **Procedural Stars** — 100K+ seeded point sprites with adjustable count, brightness, size, and color variation
+- **Nebula** — Volumetric 4D simplex noise FBM with 3-color gradient, tunable density, falloff, and octaves
+- **Sun** — Directional light with disk, corona, limb darkening, and atmospheric glow
+- **Constellations** — All 88 IAU constellation lines, labels, and boundary polygons
+- **Named Star Labels** — Labels for prominent named stars (Sirius, Betelgeuse, Polaris, etc.)
+- **Background** — Solid color fill layer
+
+### Post-Processing Pipeline
+
+- **God Rays** — Volumetric light scattering with radial blur + cross-face analytical glow
+- **Bloom** — Multi-pass Gaussian bloom with configurable threshold, soft knee, and iterations
+- **Lens Flare** — Analytical ghost elements, halo ring, anamorphic streaks, and chromatic aberration
+
+### Export Formats
+
+- **Individual Face PNGs (ZIP)** — 6 cubemap faces at up to 8K resolution
+- **Cross Layout PNG** — Single 4:3 composite image
+- **HDR (Radiance RGBE)** — High dynamic range cubemap export
+- **Tiled Rendering** — GPU-friendly tile-based rendering for 8K/16K+ exports without VRAM limits
+- **Batch Export** — Export all presets in one operation
+
+### Editing & Workflow
+
 - **Preset System** — 5 built-in presets + save/load/import/export custom presets (JSON)
+- **Undo/Redo** — Full parameter history with keyboard shortcuts (Ctrl+Z / Ctrl+Shift+Z)
+- **A/B Comparison** — Side-by-side before/after comparison with split slider
 - **Session Persistence** — Auto-saves all parameters to localStorage; restores on reload
-- **Keyboard Shortcuts** — R (randomize), F (reset camera), P (perf overlay), 1–5 (load presets)
-- **Performance Monitoring** — FPS/frame time/cubemap render time overlay (press P)
-- **Glassmorphism UI** — Frosted glass dark theme with backdrop-blur panels
-- **Error Boundary** — Graceful crash recovery with a reset button
+- **Real-time Histogram** — Live RGB histogram with async GPU readback (no stalls)
+- **Performance Monitor** — FPS/frame time/render time overlay
+
+### Graphics Engine
+
+- **WebGL2 + GLSL 300 es** — Hardware-accelerated rendering pipeline
+- **10-layer compositing** — Sorted render layers with per-layer enable/disable
+- **Cubemap FBO** — Renders all 6 faces with shared framebuffer
+- **Async Readback** — PBO-based pixel readback with fence sync for stall-free histogram
 
 ## Tech Stack
 
@@ -49,8 +86,8 @@ Built for [Geocore](https://geocore.fun) — a 3D geography game.
 
 ```bash
 # Clone the repository
-git clone https://github.com/anahtam/SkyboxGenerator.git
-cd SkyboxGenerator
+git clone https://github.com/Geocore-fun/geocore-stellar-engine.git
+cd geocore-stellar-engine
 
 # Install dependencies
 pnpm install
@@ -79,24 +116,31 @@ pnpm test --run # Run once
 
 ### Controls
 
-| Action          | Input                    |
-| --------------- | ------------------------ |
-| Orbit camera    | Click + drag             |
-| Zoom (FOV)      | Scroll wheel             |
-| Randomize seed  | Press **R** or 🎲 button |
-| Reset camera    | Press **F**              |
-| Load preset 1–5 | Press **1**–**5**        |
-| Toggle perf HUD | Press **P**              |
-| Close modal     | Press **Escape**         |
+| Action          | Input                         |
+| --------------- | ----------------------------- |
+| Orbit camera    | Click + drag                  |
+| Zoom (FOV)      | Scroll wheel                  |
+| Randomize seed  | Press **R** or 🎲 button      |
+| Reset camera    | Press **F**                   |
+| Load preset 1–5 | Press **1**–**5**             |
+| Toggle perf HUD | Press **P**                   |
+| Undo / Redo     | **Ctrl+Z** / **Ctrl+Shift+Z** |
+| Close modal     | Press **Escape**              |
 
 ### Sidebar Panels
 
 - **Presets** — Quick-load built-in presets or manage custom presets
 - **Background** — Background fill color
 - **Star Field** — Star count, brightness range, size range, color variation
+- **Catalog Stars** — Magnitude range, color mapping, star sizing
 - **Nebula** — 3-color gradient, density, falloff, scale, octaves, FBM parameters
+- **Milky Way** — Tilt, core intensity, arm structure, color
+- **Constellations** — Line visibility, labels, boundary polygons, constellation selection
 - **Sun** — Color, size, corona, glow, limb darkening, XYZ direction
-- **Export** — Choose format (individual PNGs or cross-layout), resolution, and export
+- **God Rays** — Exposure, decay, density, weight
+- **Bloom** — Threshold, soft knee, intensity, iterations
+- **Lens Flare** — Intensity, ghost count/spacing, halo, chromatic aberration
+- **Export** — Format, resolution, tiled rendering, batch export
 
 ### Exporting for Unity
 
@@ -132,11 +176,18 @@ Export generates cubemap face images with the following naming convention:
 
 ```
 src/
-├── export/            # PNG/ZIP export pipeline
+├── data/              # Star catalogs, constellation data, color mapping
+├── export/            # PNG/ZIP/HDR export pipeline, tiled rendering
 ├── hooks/             # React hooks (keyboard shortcuts)
-├── layers/            # WebGL render layers
+├── layers/            # WebGL render layers (10 layers)
 │   ├── BackgroundLayer.ts
 │   ├── PointStarLayer.ts
+│   ├── CatalogStarLayer.ts
+│   ├── ConstellationLayer.ts
+│   ├── ConstellationBoundaryLayer.ts
+│   ├── ConstellationLabelLayer.ts
+│   ├── MilkyWayLayer.ts
+│   ├── NamedStarLabelLayer.ts
 │   ├── NebulaLayer.ts
 │   └── SunLayer.ts
 ├── presets/            # Built-in & custom preset system
@@ -144,12 +195,16 @@ src/
 │   ├── Renderer.ts       # Context manager, shader compilation
 │   ├── CubemapFBO.ts     # Cubemap framebuffer
 │   ├── FullscreenQuad.ts # Fullscreen geometry
-│   └── SkyboxPipeline.ts # Pipeline orchestrator
+│   ├── SkyboxPipeline.ts # Pipeline orchestrator
+│   ├── BloomPass.ts      # Multi-pass Gaussian bloom
+│   ├── GodRayPass.ts     # Volumetric light scattering
+│   ├── LensFlarePass.ts  # Analytical lens flare
+│   └── AsyncReadback.ts  # PBO-based async pixel readback
 ├── shaders/           # GLSL 300 es shaders
-├── state/             # Zustand store (persisted)
+├── state/             # Zustand store (persisted, with undo/redo)
 ├── types/             # TypeScript interfaces
 ├── ui/
-│   ├── components/    # Reusable UI (Toolbar, Viewport, controls)
+│   ├── components/    # Toolbar, Viewport, controls, histogram, A/B comparison
 │   ├── layout/        # AppLayout
 │   └── panels/        # Parameter panels
 ├── utils/             # RNG, color conversion, cubemap math, perf monitor
@@ -157,35 +212,17 @@ src/
 └── index.css          # Tailwind theme + glassmorphism styles
 ```
 
-## GLSL Shaders
-
-| Shader                     | Purpose                                               |
-| -------------------------- | ----------------------------------------------------- |
-| `fullscreen.vert.glsl`     | Clip-space quad → ray direction via inverse VP        |
-| `background.frag.glsl`     | Solid color fill                                      |
-| `point-stars.vert.glsl`    | Per-vertex star position/size/color from VBO          |
-| `point-stars.frag.glsl`    | Soft circular point sprites with brightness falloff   |
-| `nebula.frag.glsl`         | 4D simplex noise FBM, 3-color gradient                |
-| `sun.frag.glsl`            | Disk + smoothstep corona + power-law atmospheric glow |
-| `skybox-preview.frag.glsl` | Cubemap texture sampling for viewport preview         |
-
-## Built-in Presets
-
-1. **Deep Space** — Dark void with sparse faint stars
-2. **Milky Way** — Dense starfield with colorful nebula
-3. **Sunset Nebula** — Warm orange/pink nebula with bright sun
-4. **Blue Giant** — Cool blue nebula with intense blue-white sun
-5. **Void** — Near-black minimalist space
-
 ## Keyboard Shortcuts
 
-| Key       | Action                     |
-| --------- | -------------------------- |
-| `R`       | Randomize seed             |
-| `F`       | Reset camera to default    |
-| `P`       | Toggle performance overlay |
-| `1` – `5` | Load built-in preset 1–5   |
-| `Escape`  | Close modal/popover        |
+| Key            | Action                     |
+| -------------- | -------------------------- |
+| `R`            | Randomize seed             |
+| `F`            | Reset camera to default    |
+| `P`            | Toggle performance overlay |
+| `1` – `5`      | Load built-in preset 1–5   |
+| `Ctrl+Z`       | Undo                       |
+| `Ctrl+Shift+Z` | Redo                       |
+| `Escape`       | Close modal/popover        |
 
 ## Development
 
@@ -210,4 +247,4 @@ MIT
 
 ## Author
 
-[Anahat Mudgal](https://anahatmudgal.com) • [GitHub](https://github.com/anahtam)
+[Anahat Mudgal](https://anahatmudgal.com) · [GitHub](https://github.com/anahatm) · [Geocore Technologies](https://github.com/Geocore-fun)

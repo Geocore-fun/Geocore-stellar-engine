@@ -1,5 +1,5 @@
 /**
- * Shared type definitions for the SkyboxGenerator application.
+ * Shared type definitions for the Geocore Stellar Engine application.
  */
 
 /** RGBA color as normalized [0..1] floats */

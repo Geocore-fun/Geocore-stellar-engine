@@ -1,10 +1,10 @@
-# SkyboxGenerator — System Architecture
+# Geocore Stellar Engine — System Architecture
 
 ---
 
 ## High-Level Overview
 
-SkyboxGenerator follows a **layered rendering pipeline** architecture. The application is structured as three primary systems:
+Geocore Stellar Engine follows a **layered rendering pipeline** architecture. The application is structured as three primary systems:
 
 1. **Render Engine** — WebGL2-based GPU pipeline that composites multiple visual layers onto 6 cubemap faces
 2. **UI Layer** — React-based control surface that exposes every render parameter through interactive widgets

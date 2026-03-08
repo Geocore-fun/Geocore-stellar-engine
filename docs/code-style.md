@@ -1,4 +1,4 @@
-# SkyboxGenerator — Code Style Guide
+# Geocore Stellar Engine — Code Style Guide
 
 ---
 
@@ -22,11 +22,7 @@
 const toCartesian = (ra: number, dec: number): Vec3 => {
   const raRad = (ra * 15 * Math.PI) / 180;
   const decRad = (dec * Math.PI) / 180;
-  return [
-    Math.cos(decRad) * Math.cos(raRad),
-    Math.sin(decRad),
-    Math.cos(decRad) * Math.sin(raRad),
-  ];
+  return [Math.cos(decRad) * Math.cos(raRad), Math.sin(decRad), Math.cos(decRad) * Math.sin(raRad)];
 };
 
 // NO — overly verbose, unnecessary intermediate variables
@@ -73,23 +69,23 @@ interface SunParams {
 
 // Use type for unions, primitives, tuples
 type Vec3 = [number, number, number];
-type RenderMode = "procedural" | "texture" | "blend";
-type CubemapFace = "front" | "back" | "left" | "right" | "top" | "bottom";
+type RenderMode = 'procedural' | 'texture' | 'blend';
+type CubemapFace = 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom';
 ```
 
 ### Imports
 
 ```typescript
 // Order: external → internal → types → styles
-import { create } from "zustand";
-import { mat4, vec3 } from "gl-matrix";
+import { create } from 'zustand';
+import { mat4, vec3 } from 'gl-matrix';
 
-import { ShaderProgram } from "../renderer/program";
-import { createBuffer } from "../renderer/buffer";
+import { ShaderProgram } from '../renderer/program';
+import { createBuffer } from '../renderer/buffer';
 
-import type { RenderLayer, LayerParams } from "./layer";
+import type { RenderLayer, LayerParams } from './layer';
 
-import styles from "./StarPanel.module.css";
+import styles from './StarPanel.module.css';
 ```
 
 ### Exports
@@ -109,16 +105,14 @@ export default function StarPanel() { ... }
 // WebGL operations that can fail: throw descriptive errors
 const program = gl.createProgram();
 if (!program) {
-  throw new Error("Failed to create WebGL program");
+  throw new Error('Failed to create WebGL program');
 }
 
 // User-facing errors: show toast notification, don't crash
 try {
   await exportCubemap(params);
 } catch (err) {
-  toast.error(
-    `Export failed: ${err instanceof Error ? err.message : "Unknown error"}`,
-  );
+  toast.error(`Export failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
 }
 ```
 

@@ -1,4 +1,4 @@
-# SkyboxGenerator — Current Status
+# Geocore Stellar Engine — Current Status
 
 **Last Updated:** 2025-07-15 — All Milestones Complete (M1–M4)  
 **Status:** M1 ✅ | M2 ✅ | M3 ✅ | M4 ✅ — All roadmap items implemented
@@ -204,7 +204,7 @@
 ## Current File Structure
 
 ```
-SkyboxGenerator/
+GeoCoreStellarEngine/
 ├── docs/                          # Planning documents (7 docs)
 ├── scripts/
 │   ├── preprocess-hyg.mjs         # HYG CSV → binary preprocessor

@@ -44,10 +44,12 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
         <div className="flex items-center justify-between border-b border-white/5 px-5 pt-5 pb-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-[15px] font-bold text-white shadow-lg shadow-accent/20">
-              SG
+              GSE
             </div>
             <div>
-              <h2 className="text-[15px] font-semibold text-text-primary">Skybox Generator</h2>
+              <h2 className="text-[15px] font-semibold text-text-primary">
+                Geocore Stellar Engine
+              </h2>
               <p className="text-[11px] text-text-muted">v1.0.0</p>
             </div>
           </div>
@@ -62,9 +64,9 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
         {/* Content */}
         <div className="px-5 py-4">
           <p className="text-[13px] leading-relaxed text-text-secondary">
-            A procedural cubemap skybox generator built for game development. Generate stunning
-            space backgrounds with customizable stars, nebulae, and sun effects, then export as
-            cubemap PNGs for Unity and other game engines.
+            A GPU-accelerated procedural skybox engine for low-earth orbit simulation. Generate
+            photorealistic space backgrounds with stars, nebulae, Milky Way, constellations, and sun
+            effects — then export as cubemap PNGs or HDR for Unity and other game engines.
           </p>
 
           <p className="mt-3 text-[13px] leading-relaxed text-text-secondary">
@@ -95,6 +97,21 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
               href="https://github.com/anahatm"
             />
             <LinkRow icon={<CubeIcon />} label="geocore.fun" href="https://geocore.fun" />
+            <LinkRow
+              icon={<GitHubIcon />}
+              label="Geocore Technologies"
+              href="https://github.com/Geocore-fun"
+            />
+            <LinkRow
+              icon={<ExternalLinkIcon />}
+              label="Project Page"
+              href="https://www.anahatmudgal.com/development/geocore-stellar-engine"
+            />
+            <LinkRow
+              icon={<GitHubIcon />}
+              label="Source Code"
+              href="https://github.com/Geocore-fun/geocore-stellar-engine"
+            />
           </div>
         </div>
       </div>

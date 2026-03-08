@@ -1,4 +1,4 @@
-# SkyboxGenerator — Feature Specifications
+# Geocore Stellar Engine — Feature Specifications
 
 ---
 
