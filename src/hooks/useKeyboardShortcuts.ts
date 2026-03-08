@@ -2,20 +2,39 @@
  * Global keyboard shortcuts hook.
  *
  * Shortcuts:
+ *   Ctrl+Z   — Undo
+ *   Ctrl+Y   — Redo
+ *   Ctrl+Shift+Z — Redo (alternative)
  *   R        — Randomize seed
  *   Space    — Toggle fullscreen viewport
  *   1-5      — Load built-in presets (when not focused on input)
  *   F        — Fit/reset camera
+ *   P        — Toggle performance overlay
  */
 
 import { BUILT_IN_PRESETS } from '@/presets';
 import { useAppStore } from '@/state';
+import { useHistoryStore } from '@/state/historyStore';
 import { useEffect } from 'react';
 
 export function useKeyboardShortcuts() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Ignore when typing in inputs
+      // ── Undo / Redo (works even in inputs) ──
+      if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+        if (e.key === 'z' && !e.shiftKey) {
+          e.preventDefault();
+          useHistoryStore.getState().undo();
+          return;
+        }
+        if (e.key === 'y' || (e.key === 'z' && e.shiftKey) || (e.key === 'Z' && e.shiftKey)) {
+          e.preventDefault();
+          useHistoryStore.getState().redo();
+          return;
+        }
+      }
+
+      // Ignore other shortcuts when typing in inputs
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 

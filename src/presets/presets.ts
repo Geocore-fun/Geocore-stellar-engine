@@ -10,6 +10,8 @@ import {
   DEFAULT_CATALOG_STARS,
   DEFAULT_CONSTELLATION_BOUNDARIES,
   DEFAULT_CONSTELLATIONS,
+  DEFAULT_GOD_RAYS,
+  DEFAULT_LENS_FLARE,
   DEFAULT_MILKY_WAY,
   DEFAULT_NEBULA,
   DEFAULT_STAR_FIELD,
@@ -18,6 +20,8 @@ import {
   type CatalogStarParams,
   type ConstellationBoundaryParams,
   type ConstellationParams,
+  type GodRayParams,
+  type LensFlareParams,
   type MilkyWayParams,
   type NebulaParams,
   type StarFieldParams,
@@ -38,6 +42,8 @@ export interface PresetData {
   constellationBoundaries?: ConstellationBoundaryParams;
   milkyWay?: MilkyWayParams;
   bloom?: BloomParams;
+  lensFlare?: LensFlareParams;
+  godRays?: GodRayParams;
 }
 
 export interface Preset {
@@ -65,6 +71,8 @@ const DEFAULT: Preset = {
     constellationBoundaries: { ...DEFAULT_CONSTELLATION_BOUNDARIES },
     milkyWay: { ...DEFAULT_MILKY_WAY },
     bloom: { ...DEFAULT_BLOOM },
+    lensFlare: { ...DEFAULT_LENS_FLARE },
+    godRays: { ...DEFAULT_GOD_RAYS },
   },
 };
 

@@ -17,13 +17,16 @@ import { NebulaLayer } from '@/layers/NebulaLayer';
 import { PointStarLayer } from '@/layers/PointStarLayer';
 import type { RenderLayer, RenderParams } from '@/layers/RenderLayer';
 import { SunLayer } from '@/layers/SunLayer';
+import { AsyncReadback } from '@/renderer/AsyncReadback';
 import { BloomPass, type BloomParams } from '@/renderer/BloomPass';
 import { CubemapFBO } from '@/renderer/CubemapFBO';
 import { FullscreenQuad } from '@/renderer/FullscreenQuad';
+import { GodRayPass, type GodRayParams } from '@/renderer/GodRayPass';
+import { LensFlarePass, type LensFlareParams } from '@/renderer/LensFlarePass';
 import { Renderer } from '@/renderer/Renderer';
 import { CUBE_FACES } from '@/types';
 import { getCubeFaceViewMatrix, getCubemapProjectionMatrix } from '@/utils/cubemap';
-import { mat4 } from 'gl-matrix';
+import { mat4, vec3, vec4 } from 'gl-matrix';
 
 import fullscreenVertSrc from '@/shaders/fullscreen.vert.glsl?raw';
 import skyboxPreviewFragSrc from '@/shaders/skybox-preview.frag.glsl?raw';
@@ -50,10 +53,39 @@ export class SkyboxPipeline {
     iterations: 3,
   };
 
+  private lensFlarePass: LensFlarePass;
+  private lensFlareParams: LensFlareParams = {
+    enabled: false,
+    intensity: 0.3,
+    ghostCount: 4,
+    ghostSpacing: 0.3,
+    haloRadius: 0.4,
+    haloIntensity: 0.2,
+    chromaticAberration: 0.5,
+  };
+
+  private godRayPass: GodRayPass;
+  private godRayParams: GodRayParams = {
+    enabled: false,
+    exposure: 0.3,
+    decay: 0.96,
+    density: 0.8,
+    weight: 0.5,
+  };
+
+  /** Sun world-space direction (normalized), updated from store */
+  private sunPosition: [number, number, number] = [1, 0.3, 0.5];
+
+  /** PBO-based async pixel readback for histogram (avoids GPU stalls) */
+  private asyncReadback: AsyncReadback;
+
   constructor(canvas: HTMLCanvasElement, faceSize: number) {
     this.renderer = new Renderer({ canvas, faceSize });
     this.cubemapFBO = new CubemapFBO(this.renderer.gl, faceSize);
     this.bloomPass = new BloomPass(this.renderer, faceSize);
+    this.lensFlarePass = new LensFlarePass(this.renderer);
+    this.godRayPass = new GodRayPass(this.renderer, faceSize);
+    this.asyncReadback = new AsyncReadback(this.renderer.gl);
     this.projectionMatrix = getCubemapProjectionMatrix();
 
     // Create default layers
@@ -98,16 +130,74 @@ export class SkyboxPipeline {
     return [...this.layers].sort((a, b) => a.order - b.order);
   }
 
+  /** Get the underlying GL context */
+  getGL(): WebGL2RenderingContext {
+    return this.renderer.gl;
+  }
+
+  /** Get the renderer instance (for tiled export) */
+  getRenderer(): Renderer {
+    return this.renderer;
+  }
+
   /** Update the face size for cubemap rendering */
   setFaceSize(size: number): void {
     this.renderer.faceSize = size;
     this.cubemapFBO.resize(size);
     this.bloomPass.resize(size);
+    this.godRayPass.resize(size);
   }
 
   /** Update bloom post-processing parameters */
   setBloomParams(params: BloomParams): void {
     this.bloomParams = { ...params };
+  }
+
+  /** Update lens flare parameters */
+  setLensFlareParams(params: LensFlareParams): void {
+    this.lensFlareParams = { ...params };
+  }
+
+  /** Update god ray parameters */
+  setGodRayParams(params: GodRayParams): void {
+    this.godRayParams = { ...params };
+  }
+
+  /** Update sun position for post-processing projection */
+  setSunPosition(position: [number, number, number]): void {
+    this.sunPosition = [...position];
+  }
+
+  /**
+   * Project the sun direction onto a cubemap face's UV space.
+   * Returns the UV and whether the sun is within extended face bounds.
+   */
+  private _projectSunOnFace(viewMatrix: Float32Array): { uv: [number, number]; visible: boolean } {
+    const dir = vec3.create();
+    vec3.normalize(dir, this.sunPosition as unknown as vec3);
+
+    // Build view-projection for this face
+    const viewProj = mat4.create();
+    mat4.multiply(viewProj, this.projectionMatrix, viewMatrix as unknown as mat4);
+
+    // Transform sun position (on unit sphere) into clip space
+    const sunWorld = vec4.fromValues(dir[0], dir[1], dir[2], 1.0);
+    const sunClip = vec4.create();
+    vec4.transformMat4(sunClip, sunWorld, viewProj);
+
+    if (sunClip[3] <= 0) {
+      return { uv: [0, 0], visible: false };
+    }
+
+    const ndcX = sunClip[0] / sunClip[3];
+    const ndcY = sunClip[1] / sunClip[3];
+    const uvX = ndcX * 0.5 + 0.5;
+    const uvY = ndcY * 0.5 + 0.5;
+
+    // Visible if within extended bounds (allow off-screen flare effects)
+    const visible = uvX >= -0.5 && uvX <= 1.5 && uvY >= -0.5 && uvY <= 1.5;
+
+    return { uv: [uvX, uvY], visible };
   }
 
   /**
@@ -135,12 +225,40 @@ export class SkyboxPipeline {
         layer.render(this.renderer, params);
       }
 
+      // Project sun onto this face for post-processing
+      const sunProj = this._projectSunOnFace(params.viewMatrix);
+
+      // God rays (before bloom — god rays should bloom too)
+      if (this.godRayParams.enabled && sunProj.visible) {
+        this.godRayPass.apply(
+          this.cubemapFBO.glFramebuffer,
+          sunProj.uv,
+          sunProj.visible,
+          this.renderer.faceSize,
+          this.godRayParams,
+        );
+        // Re-bind the face after god ray pass modifies FBO state
+        this.cubemapFBO.bindFace(face);
+      }
+
       // Apply bloom post-processing to this face
       if (this.bloomParams.enabled) {
         this.bloomPass.apply(
           this.cubemapFBO.glFramebuffer,
           this.renderer.faceSize,
           this.bloomParams,
+        );
+        // Re-bind the face after bloom modifies FBO state
+        this.cubemapFBO.bindFace(face);
+      }
+
+      // Lens flare (after bloom — analytical overlay)
+      if (this.lensFlareParams.enabled && sunProj.visible) {
+        this.lensFlarePass.apply(
+          sunProj.uv,
+          sunProj.visible,
+          this.renderer.faceSize,
+          this.lensFlareParams,
         );
       }
     }
@@ -204,6 +322,28 @@ export class SkyboxPipeline {
     }));
   }
 
+  /**
+   * Read pixels from a single face for histogram analysis.
+   * Defaults to +Z (front) face.
+   */
+  readFacePixels(face: (typeof CUBE_FACES)[number] = 'pz'): Uint8Array {
+    return this.cubemapFBO.readFace(face);
+  }
+
+  /**
+   * Async pixel readback using PBOs — avoids GPU stalls.
+   * Returns the PREVIOUS frame's pixels (1-frame latency) or null if not ready.
+   * Call this each frame after renderCubemap() for stall-free histogram data.
+   */
+  readFacePixelsAsync(face: (typeof CUBE_FACES)[number] = 'pz'): Uint8Array | null {
+    const size = this.cubemapFBO.size;
+    // Bind the face FBO so readPixels reads from it
+    this.cubemapFBO.bindFace(face);
+    const result = this.asyncReadback.readAsync(size, size);
+    this.cubemapFBO.unbind();
+    return result;
+  }
+
   /** Clean up all GPU resources */
   dispose(): void {
     for (const layer of this.layers) {
@@ -211,6 +351,9 @@ export class SkyboxPipeline {
     }
     this.previewQuad?.dispose();
     this.bloomPass.dispose();
+    this.lensFlarePass.dispose();
+    this.godRayPass.dispose();
+    this.asyncReadback.dispose();
     this.cubemapFBO.dispose();
     this.renderer.dispose();
   }

@@ -155,6 +155,36 @@ export interface BloomParams {
   iterations: number;
 }
 
+/** Lens flare parameters */
+export interface LensFlareParams {
+  enabled: boolean;
+  /** Overall intensity (0-2) */
+  intensity: number;
+  /** Number of ghost elements (1-8) */
+  ghostCount: number;
+  /** Spacing between ghosts (0.1-1.0) */
+  ghostSpacing: number;
+  /** Halo ring radius from center (0.1-0.8) */
+  haloRadius: number;
+  /** Halo ring brightness (0-1) */
+  haloIntensity: number;
+  /** Chromatic aberration amount (0-1) */
+  chromaticAberration: number;
+}
+
+/** God ray (volumetric light scattering) parameters */
+export interface GodRayParams {
+  enabled: boolean;
+  /** Overall ray brightness (0-1) */
+  exposure: number;
+  /** Decay factor per sample along ray (0.9-1.0) */
+  decay: number;
+  /** Ray sampling density (0.1-2.0) */
+  density: number;
+  /** Individual sample weight (0-1) */
+  weight: number;
+}
+
 /** Sun layer parameters */
 export interface SunParams {
   enabled: boolean;
@@ -186,6 +216,8 @@ export interface AppState {
   nebula: NebulaParams;
   sun: SunParams;
   bloom: BloomParams;
+  lensFlare: LensFlareParams;
+  godRays: GodRayParams;
 
   // ── Export ──
   exportFormat: ExportFormat;
@@ -211,6 +243,8 @@ export interface AppState {
   setNebula: (params: Partial<NebulaParams>) => void;
   setSun: (params: Partial<SunParams>) => void;
   setBloom: (params: Partial<BloomParams>) => void;
+  setLensFlare: (params: Partial<LensFlareParams>) => void;
+  setGodRays: (params: Partial<GodRayParams>) => void;
   setExportFormat: (format: ExportFormat) => void;
   setExportResolution: (resolution: number) => void;
   setIsExporting: (exporting: boolean) => void;
@@ -298,6 +332,24 @@ export const DEFAULT_BLOOM: BloomParams = {
   iterations: 3,
 };
 
+export const DEFAULT_LENS_FLARE: LensFlareParams = {
+  enabled: false,
+  intensity: 0.3,
+  ghostCount: 4,
+  ghostSpacing: 0.3,
+  haloRadius: 0.4,
+  haloIntensity: 0.2,
+  chromaticAberration: 0.5,
+};
+
+export const DEFAULT_GOD_RAYS: GodRayParams = {
+  enabled: false,
+  exposure: 0.3,
+  decay: 0.96,
+  density: 0.8,
+  weight: 0.5,
+};
+
 export const DEFAULT_SUN: SunParams = {
   enabled: true,
   position: [1, 0.3, 0.5],
@@ -352,6 +404,8 @@ export const useAppStore = create<AppState>()(
         nebula: DEFAULT_NEBULA,
         sun: DEFAULT_SUN,
         bloom: DEFAULT_BLOOM,
+        lensFlare: DEFAULT_LENS_FLARE,
+        godRays: DEFAULT_GOD_RAYS,
 
         // ── Export defaults ──
         exportFormat: 'png-individual',
@@ -409,6 +463,16 @@ export const useAppStore = create<AppState>()(
             bloom: { ...state.bloom, ...params },
             needsRedraw: true,
           })),
+        setLensFlare: (params) =>
+          set((state) => ({
+            lensFlare: { ...state.lensFlare, ...params },
+            needsRedraw: true,
+          })),
+        setGodRays: (params) =>
+          set((state) => ({
+            godRays: { ...state.godRays, ...params },
+            needsRedraw: true,
+          })),
         setExportFormat: (exportFormat) => set({ exportFormat }),
         setExportResolution: (exportResolution) => set({ exportResolution }),
         setIsExporting: (isExporting) => set({ isExporting }),
@@ -433,6 +497,8 @@ export const useAppStore = create<AppState>()(
             nebula: { ...DEFAULT_NEBULA },
             sun: { ...DEFAULT_SUN },
             bloom: { ...DEFAULT_BLOOM },
+            lensFlare: { ...DEFAULT_LENS_FLARE },
+            godRays: { ...DEFAULT_GOD_RAYS },
             needsRedraw: true,
           }),
       }),
@@ -451,6 +517,8 @@ export const useAppStore = create<AppState>()(
           nebula: state.nebula,
           sun: state.sun,
           bloom: state.bloom,
+          lensFlare: state.lensFlare,
+          godRays: state.godRays,
           exportFormat: state.exportFormat,
           exportResolution: state.exportResolution,
         }),

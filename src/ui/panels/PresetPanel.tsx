@@ -37,6 +37,8 @@ export function PresetPanel() {
       constellationBoundaries: { ...s.constellationBoundaries },
       milkyWay: { ...s.milkyWay },
       bloom: { ...s.bloom },
+      lensFlare: { ...s.lensFlare },
+      godRays: { ...s.godRays },
     };
   }, []);
 
@@ -54,6 +56,8 @@ export function PresetPanel() {
     if (data.constellationBoundaries) s.setConstellationBoundaries(data.constellationBoundaries);
     if (data.milkyWay) s.setMilkyWay(data.milkyWay);
     if (data.bloom) s.setBloom(data.bloom);
+    if (data.lensFlare) s.setLensFlare(data.lensFlare);
+    if (data.godRays) s.setGodRays(data.godRays);
   }, []);
 
   /** Reset everything to factory defaults. */

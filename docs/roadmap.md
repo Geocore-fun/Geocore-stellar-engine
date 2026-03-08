@@ -1,6 +1,6 @@
 # SkyboxGenerator — Implementation Roadmap
 
-**Last Updated:** 2025-07-14
+**Last Updated:** 2025-07-15
 
 ---
 
@@ -9,17 +9,17 @@
 The project follows an **MVP-first, iterative** approach. Each milestone delivers a complete, usable increment. Estimated timelines are flexible — quality over speed.
 
 ```
-M1: MVP Core ✅       M2: Star Data ✅      M3: Effects ✅       M4: Polish
+M1: MVP Core ✅       M2: Star Data ✅      M3: Effects ✅       M4: Polish ✅
 ───────────────────   ──────────────────    ──────────────────   ──────────────
-Scaffolding ✅        HYG catalog loader ✅  Milky Way layer ✅   Undo/redo
-WebGL2 engine ✅      Catalog star render ✅ Full sun effects     Histogram
-Point stars layer ✅  Constellation lines ✅ Advanced stars ✅    A/B comparison
-Sun layer (basic) ✅  Constellation labels ✅ Bloom post-proc ✅  Batch export
-Nebula layer ✅       Constellation bounds ✅ Lens flare          Session persist ✅
-Preview viewport ✅   Magnitude filtering ✅  Tiled rendering
-Export (PNG/ZIP) ✅   B-V color mapping ✅    HDR/EXR export
-Preset system ✅      Named star labels ✅
-Seed system ✅
+Scaffolding ✅        HYG catalog loader ✅  Milky Way layer ✅   Undo/redo ✅
+WebGL2 engine ✅      Catalog star render ✅ Full sun effects ✅  Histogram ✅
+Point stars layer ✅  Constellation lines ✅ Advanced stars ✅    A/B comparison ✅
+Sun layer (basic) ✅  Constellation labels ✅ Bloom post-proc ✅  Batch export ✅
+Nebula layer ✅       Constellation bounds ✅ Lens flare ✅       Session persist ✅
+Preview viewport ✅   Magnitude filtering ✅  God rays ✅         Tiled rendering ✅
+Export (PNG/ZIP) ✅   B-V color mapping ✅    ────────────────   HDR export ✅
+Preset system ✅      Named star labels ✅                       Perf optimization ✅
+Seed system ✅                                                  Error handling ✅
 UI panels ✅
 ```
 
@@ -183,7 +183,7 @@ UI panels ✅
 
 ---
 
-## Milestone 3: Advanced Visual Effects
+## Milestone 3: Advanced Visual Effects ✅ COMPLETE
 
 > **Goal**: Add Milky Way, full sun effects (bloom, lens flare, god rays), and advanced star rendering.
 
@@ -204,8 +204,8 @@ UI panels ✅
 | 3.2.2 | Bright pixel extraction pass (threshold filter)               | 2h   | ✅     |
 | 3.2.3 | Separable Gaussian blur (horizontal + vertical passes)        | 4h   | ✅     |
 | 3.2.4 | Bloom compositing (additive blend of blurred bright pixels)   | 2h   | ✅     |
-| 3.2.5 | Lens flare generation (radial elements along sun-center axis) | 6h   | 🔲     |
-| 3.2.6 | God ray shader (radial blur from sun position)                | 4h   | 🔲     |
+| 3.2.5 | Lens flare generation (radial elements along sun-center axis) | 6h   | ✅     |
+| 3.2.6 | God ray shader (radial blur from sun position)                | 4h   | ✅     |
 
 ### Phase 3.3 — Advanced Star Features ✅
 
@@ -219,22 +219,22 @@ UI panels ✅
 
 ---
 
-## Milestone 4: Polish & Professional Features
+## Milestone 4: Polish & Professional Features ✅ COMPLETE
 
 > **Goal**: Professional workflow features — undo/redo, analytics, comparison tools, batch operations.
 
-| Task | Description                                                     | Est. |
-| ---- | --------------------------------------------------------------- | ---- |
-| 4.1  | Undo/redo via Zustand temporal middleware                       | 4h   |
-| 4.2  | Keyboard shortcuts (Ctrl+Z, Ctrl+Y, Space for fullscreen, etc.) | 2h   |
-| 4.3  | Brightness/color histogram (real-time framebuffer analysis)     | 6h   |
-| 4.4  | A/B comparison mode (snapshot + split view)                     | 6h   |
-| 4.5  | Batch export (multiple presets → multiple cubemaps)             | 4h   |
-| 4.6  | Session persistence (auto-save/restore full state)              | 3h   |
-| 4.7  | Tiled rendering for ultra-high resolutions (8K+)                | 6h   |
-| 4.8  | HDR/EXR export (float framebuffer → EXR encoding)               | 8h   |
-| 4.9  | Performance optimization pass (layer caching, async readback)   | 6h   |
-| 4.10 | Comprehensive error handling and user feedback                  | 3h   |
+| Task | Description                                                     | Est. | Status |
+| ---- | --------------------------------------------------------------- | ---- | ------ |
+| 4.1  | Undo/redo via Zustand temporal middleware                       | 4h   | ✅     |
+| 4.2  | Keyboard shortcuts (Ctrl+Z, Ctrl+Y, Space for fullscreen, etc.) | 2h   | ✅     |
+| 4.3  | Brightness/color histogram (real-time framebuffer analysis)     | 6h   | ✅     |
+| 4.4  | A/B comparison mode (snapshot + split view)                     | 6h   | ✅     |
+| 4.5  | Batch export (multiple presets → multiple cubemaps)             | 4h   | ✅     |
+| 4.6  | Session persistence (auto-save/restore full state)              | 3h   | ✅     |
+| 4.7  | Tiled rendering for ultra-high resolutions (8K+)                | 6h   | ✅     |
+| 4.8  | HDR/EXR export (Radiance RGBE .hdr encoding)                    | 8h   | ✅     |
+| 4.9  | Performance optimization pass (PBO async readback)              | 6h   | ✅     |
+| 4.10 | Comprehensive error handling and user feedback                  | 3h   | ✅     |
 
 **Milestone 4 Total Estimate: ~48 hours**
 
@@ -242,12 +242,12 @@ UI panels ✅
 
 ## Summary
 
-| Milestone | Focus                           | Est. Hours | Cumulative | Status         |
-| --------- | ------------------------------- | ---------- | ---------- | -------------- |
-| **M1**    | MVP Core Generator              | ~140h      | 140h       | ✅ Complete    |
-| **M2**    | Real Star Data & Constellations | ~56h       | 196h       | ✅ Complete    |
-| **M3**    | Advanced Visual Effects         | ~49h       | 245h       | ✅ Mostly Done |
-| **M4**    | Polish & Professional Features  | ~48h       | 293h       | ⬜ Not started |
+| Milestone | Focus                           | Est. Hours | Cumulative | Status      |
+| --------- | ------------------------------- | ---------- | ---------- | ----------- |
+| **M1**    | MVP Core Generator              | ~140h      | 140h       | ✅ Complete |
+| **M2**    | Real Star Data & Constellations | ~56h       | 196h       | ✅ Complete |
+| **M3**    | Advanced Visual Effects         | ~49h       | 245h       | ✅ Complete |
+| **M4**    | Polish & Professional Features  | ~48h       | 293h       | ✅ Complete |
 
 ---
 

@@ -1,5 +1,5 @@
 /**
- * Export panel with iOS-style format selection and download button.
+ * Export panel with format selection, download, and batch export.
  */
 
 import { useAppStore } from '@/state';
@@ -8,9 +8,10 @@ import { PanelSection } from '@/ui/components';
 
 interface ExportPanelProps {
   onExport: () => void;
+  onBatchExport?: () => void;
 }
 
-export function ExportPanel({ onExport }: ExportPanelProps) {
+export function ExportPanel({ onExport, onBatchExport }: ExportPanelProps) {
   const exportFormat = useAppStore((s) => s.exportFormat);
   const setExportFormat = useAppStore((s) => s.setExportFormat);
   const exportResolution = useAppStore((s) => s.exportResolution);
@@ -30,6 +31,7 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
         >
           <option value="png-individual">Individual PNGs (ZIP)</option>
           <option value="png-cross">Cross Layout PNG</option>
+          <option value="hdr">HDR Radiance (ZIP)</option>
         </select>
       </div>
 
@@ -45,6 +47,8 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
           <option value={1024}>1024 × 1024</option>
           <option value={2048}>2048 × 2048</option>
           <option value={4096}>4096 × 4096</option>
+          <option value={8192}>8192 × 8192 (tiled)</option>
+          <option value={16384}>16384 × 16384 (tiled)</option>
         </select>
       </div>
 
@@ -67,6 +71,17 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
           {isExporting ? `Exporting… ${Math.round(exportProgress * 100)}%` : 'Export Skybox'}
         </span>
       </button>
+
+      {/* Batch Export — render all presets as individual cubemaps */}
+      {onBatchExport && (
+        <button
+          onClick={onBatchExport}
+          disabled={isExporting}
+          className="mt-2 w-full rounded-lg bg-white/5 px-4 py-2 text-[12px] font-medium text-text-secondary ring-1 ring-white/8 transition-all hover:bg-white/10 hover:text-text-primary active:scale-[0.98] disabled:opacity-50"
+        >
+          {isExporting ? 'Exporting…' : 'Batch Export All Presets'}
+        </button>
+      )}
     </PanelSection>
   );
 }

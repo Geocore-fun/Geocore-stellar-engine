@@ -1,9 +1,12 @@
 export { AboutModal } from './AboutModal';
 export { ColorPickerControl } from './ColorPickerControl';
+export { ComparisonOverlay } from './ComparisonOverlay';
 export { ErrorBoundary } from './ErrorBoundary';
+export { HistogramOverlay } from './HistogramOverlay';
 export { PanelSection } from './PanelSection';
 export { PerfOverlay } from './PerfOverlay';
 export { SliderControl } from './SliderControl';
+export { ToastOverlay } from './ToastOverlay';
 export { ToggleControl } from './ToggleControl';
 export { Toolbar } from './Toolbar';
 export { Viewport } from './Viewport';

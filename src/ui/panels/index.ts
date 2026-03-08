@@ -3,6 +3,8 @@ export { BloomPanel } from './BloomPanel';
 export { CatalogStarPanel } from './CatalogStarPanel';
 export { ConstellationPanel } from './ConstellationPanel';
 export { ExportPanel } from './ExportPanel';
+export { GodRayPanel } from './GodRayPanel';
+export { LensFlarePanel } from './LensFlarePanel';
 export { MilkyWayPanel } from './MilkyWayPanel';
 export { NebulaPanel } from './NebulaPanel';
 export { PresetPanel } from './PresetPanel';
