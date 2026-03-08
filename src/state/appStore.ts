@@ -36,6 +36,19 @@ export interface NebulaParams {
   brightness: number;
 }
 
+/** Catalog star layer parameters (real HYG data) */
+export interface CatalogStarParams {
+  enabled: boolean;
+  /** Maximum apparent magnitude to display (higher = more/fainter stars) */
+  magnitudeLimit: number;
+  /** Overall brightness multiplier */
+  brightness: number;
+  /** Point size multiplier */
+  sizeScale: number;
+  /** Blend mode: 'overlay' renders on top, 'replace' hides procedural stars */
+  blendMode: 'overlay' | 'replace';
+}
+
 /** Sun layer parameters */
 export interface SunParams {
   enabled: boolean;
@@ -60,6 +73,7 @@ export interface AppState {
 
   // ── Layer params ──
   starField: StarFieldParams;
+  catalogStars: CatalogStarParams;
   nebula: NebulaParams;
   sun: SunParams;
 
@@ -80,6 +94,7 @@ export interface AppState {
   setBackgroundColor: (color: HexColor) => void;
   setCamera: (camera: Partial<CameraState>) => void;
   setStarField: (params: Partial<StarFieldParams>) => void;
+  setCatalogStars: (params: Partial<CatalogStarParams>) => void;
   setNebula: (params: Partial<NebulaParams>) => void;
   setSun: (params: Partial<SunParams>) => void;
   setExportFormat: (format: ExportFormat) => void;
@@ -119,6 +134,14 @@ const DEFAULT_NEBULA: NebulaParams = {
   brightness: 0.6,
 };
 
+const DEFAULT_CATALOG_STARS: CatalogStarParams = {
+  enabled: true,
+  magnitudeLimit: 6.5,
+  brightness: 1.0,
+  sizeScale: 1.0,
+  blendMode: 'overlay',
+};
+
 const DEFAULT_SUN: SunParams = {
   enabled: true,
   position: [1, 0.3, 0.5],
@@ -148,6 +171,7 @@ export const useAppStore = create<AppState>()(
 
         // ── Layer defaults ──
         starField: DEFAULT_STAR_FIELD,
+        catalogStars: DEFAULT_CATALOG_STARS,
         nebula: DEFAULT_NEBULA,
         sun: DEFAULT_SUN,
 
@@ -170,6 +194,11 @@ export const useAppStore = create<AppState>()(
         setStarField: (params) =>
           set((state) => ({
             starField: { ...state.starField, ...params },
+            needsRedraw: true,
+          })),
+        setCatalogStars: (params) =>
+          set((state) => ({
+            catalogStars: { ...state.catalogStars, ...params },
             needsRedraw: true,
           })),
         setNebula: (params) =>
@@ -201,6 +230,7 @@ export const useAppStore = create<AppState>()(
           faceSize: state.faceSize,
           backgroundColor: state.backgroundColor,
           starField: state.starField,
+          catalogStars: state.catalogStars,
           nebula: state.nebula,
           sun: state.sun,
           exportFormat: state.exportFormat,

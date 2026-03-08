@@ -13,6 +13,7 @@ import { AboutModal, ErrorBoundary, PerfOverlay, Toolbar, Viewport } from '@/ui/
 import { AppLayout } from '@/ui/layout';
 import {
   BackgroundPanel,
+  CatalogStarPanel,
   ExportPanel,
   NebulaPanel,
   PresetPanel,
@@ -40,6 +41,7 @@ function App() {
   const backgroundColor = useAppStore((s) => s.backgroundColor);
   const camera = useAppStore((s) => s.camera);
   const starField = useAppStore((s) => s.starField);
+  const catalogStars = useAppStore((s) => s.catalogStars);
   const nebula = useAppStore((s) => s.nebula);
   const sun = useAppStore((s) => s.sun);
   const needsRedraw = useAppStore((s) => s.needsRedraw);
@@ -57,7 +59,17 @@ function App() {
       ...starField,
     });
     const starLayer = pipeline.getLayer('point-stars');
-    if (starLayer) starLayer.enabled = starField.enabled;
+    if (starLayer) {
+      // In 'replace' mode, hide procedural stars when catalog is enabled
+      starLayer.enabled =
+        starField.enabled && !(catalogStars.enabled && catalogStars.blendMode === 'replace');
+    }
+
+    pipeline.getLayer('catalog-stars')?.updateParams({
+      ...catalogStars,
+    });
+    const catalogLayer = pipeline.getLayer('catalog-stars');
+    if (catalogLayer) catalogLayer.enabled = catalogStars.enabled;
 
     pipeline.getLayer('nebula')?.updateParams({
       ...nebula,
@@ -70,7 +82,7 @@ function App() {
     });
     const sunLayer = pipeline.getLayer('sun');
     if (sunLayer) sunLayer.enabled = sun.enabled;
-  }, [faceSize, backgroundColor, starField, nebula, sun]);
+  }, [faceSize, backgroundColor, starField, catalogStars, nebula, sun]);
 
   // Main render loop
   const renderFrame = useCallback(() => {
@@ -117,7 +129,7 @@ function App() {
     return () => {
       if (redrawTimerRef.current) clearTimeout(redrawTimerRef.current);
     };
-  }, [seed, faceSize, backgroundColor, starField, nebula, sun]);
+  }, [seed, faceSize, backgroundColor, starField, catalogStars, nebula, sun]);
 
   // Stable callback — only stores the canvas ref, actual init happens in useEffect
   const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
@@ -211,6 +223,7 @@ function App() {
             <PresetPanel />
             <BackgroundPanel />
             <StarFieldPanel />
+            <CatalogStarPanel />
             <NebulaPanel />
             <SunPanel />
             <ExportPanel onExport={handleExport} />

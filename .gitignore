@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Raw HYG star catalog (34MB+, pre-processed to public/data/stars.bin)
+scripts/hyg_v42.csv
+scripts/hyg_v42.csv.gz
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

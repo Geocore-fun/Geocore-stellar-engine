@@ -1,5 +1,5 @@
 /**
- * About modal — glassmorphism popup with app info and links.
+ * About modal popup with app info and links.
  */
 
 import { useEffect, useRef } from 'react';

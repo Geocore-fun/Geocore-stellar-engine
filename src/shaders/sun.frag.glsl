@@ -21,19 +21,33 @@ void main() {
   float cosAngle = dot(dir, normalize(uSunDirection));
   float angle = acos(clamp(cosAngle, -1.0, 1.0));
 
-  // ── Solar disk ──
-  float diskEdge = smoothstep(uSunSize, uSunSize * 0.95, angle);
+  // Normalized radial position: 0 at center, 1 at disk edge
+  float r = angle / uSunSize;
 
-  // Limb darkening (edges of disk are dimmer)
-  float mu = cos(angle / uSunSize * 3.14159 * 0.5);
-  float limb = mix(1.0, pow(max(mu, 0.0), 0.5), uLimbDarkening);
+  // ── Solar disk ──
+  // Soft edge with wider smoothstep to avoid hard cutoff
+  float diskEdge = smoothstep(1.05, 0.9, r);
+
+  // Limb darkening: physically-based Eddington approximation
+  // mu = cos(theta) where theta is angle from disk center
+  // Clamp mu so it never fully reaches zero — preserves brightness at limb
+  float mu = sqrt(max(1.0 - r * r, 0.0));
+  // Quintic limb darkening coefficients (solar-like):
+  // I(mu)/I(1) = 1 - u*(1 - mu^0.5)
+  float limb = 1.0 - uLimbDarkening * (1.0 - pow(max(mu, 0.05), 0.5));
   float disk = diskEdge * limb;
 
   // ── Corona ──
-  float coronaAngle = angle - uSunSize;
+  // Start overlapping with the disk edge for seamless transition
+  float coronaDist = max(r - 0.85, 0.0);
+  float coronaWidth = uCoronaSize / uSunSize;
   float corona = 0.0;
-  if (coronaAngle > 0.0 && coronaAngle < uCoronaSize) {
-    corona = pow(1.0 - coronaAngle / uCoronaSize, 3.0) * uCoronaIntensity;
+  if (coronaDist < coronaWidth) {
+    float t = coronaDist / coronaWidth;
+    // Power-law falloff — brighter near the limb, fades smoothly
+    corona = pow(1.0 - t, 2.5) * uCoronaIntensity;
+    // Fade in the corona so it doesn't add brightness inside the disk
+    corona *= smoothstep(0.85, 1.05, r);
   }
 
   // ── Glow (wide atmospheric halo) ──

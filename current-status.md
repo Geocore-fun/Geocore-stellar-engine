@@ -1,7 +1,7 @@
 # SkyboxGenerator — Current Status
 
-**Last Updated:** 2026-03-08 — Milestone 1 Complete  
-**Status:** ✅ M1 Complete (all phases) | Next: M2 — Real Star Data & Constellations
+**Last Updated:** 2026-03-08 — M2 Phase 2.1 + 2.2 Complete  
+**Status:** 🔄 M2 In Progress | Phase 2.1 ✅ + Phase 2.2 ✅ | Next: Phase 2.3 — Constellations
 
 ---
 
@@ -86,8 +86,38 @@
 ### Build Verification
 
 - [x] TypeScript: zero errors
-- [x] Vitest: 34 tests passing (3 test suites)
-- [x] Production build: 94 modules, 275KB JS (88KB gzip), 25KB CSS (5.5KB gzip)
+- [x] Vitest: 59 tests passing (5 test suites)
+- [x] Production build: 100 modules, 284KB JS (90KB gzip), 27KB CSS (5.6KB gzip)
+
+---
+
+### Phase 2.1 — HYG Data Pipeline ✅
+
+- [x] **2.1.1** Downloaded HYG v4.2 catalog from Codeberg (119,626 stars, 34MB CSV)
+- [x] **2.1.2** `scripts/preprocess-hyg.mjs` — CSV preprocessor produces compact binary + named stars JSON
+  - Binary format: 8-byte header + 20 bytes/star (rarad, decrad, mag, ci, hip as float32/uint32)
+  - Output: `public/data/stars.bin` (312KB, 15,599 stars ≤ mag 7.0)
+  - Output: `public/data/named-stars.json` (401 named stars)
+- [x] **2.1.3** `src/data/loadCatalog.ts` — Binary catalog loader with RA/Dec → Cartesian conversion + vertex data builder
+- [x] **2.1.4** `src/data/starColor.ts` — B-V → RGB via Ballesteros formula (B-V → temp → Helland RGB) + fast LUT
+- [x] **2.1.5** Magnitude → billboard size mapping (logarithmic, customizable scale)
+- [x] **2.1.6** Async catalog loading on layer init
+- [x] **2.1.7** Unit tests: 25 new tests (14 starColor + 11 loadCatalog) — coordinate conversion, color mapping, filtering
+
+### Phase 2.2 — Catalog Star Rendering ✅
+
+- [x] **2.2.1** `src/layers/CatalogStarLayer.ts` — WebGL render layer using HYG data (order 15)
+- [x] **2.2.2** `src/shaders/catalog-stars.vert.glsl` + `catalog-stars.frag.glsl` — per-star size/color with Airy-like glow
+- [x] **2.2.3** Dynamic magnitude filtering (rebuild vertex data on magLimit/sizeScale change)
+- [x] **2.2.4** Overlay modes: 'overlay' (additive blend) vs 'replace' (hides procedural stars)
+- [x] **2.2.6** `src/ui/panels/CatalogStarPanel.tsx` — UI controls (magnitude limit, brightness, size scale, blend mode)
+- [x] **Zustand store** — `CatalogStarParams` interface, default values, `setCatalogStars` action, session persistence
+
+### Build Verification (Post M2.2)
+
+- [x] TypeScript: zero errors
+- [x] Vitest: 59 tests passing (5 test suites)
+- [x] Production build: 100 modules, 284KB JS (90KB gzip), 27KB CSS (5.6KB gzip)
 
 ---
 
@@ -96,7 +126,21 @@
 ```
 SkyboxGenerator/
 ├── docs/                          # Planning documents (7 docs)
+├── scripts/
+│   ├── preprocess-hyg.mjs         # HYG CSV → binary preprocessor
+│   ├── hyg_v42.csv                # Raw HYG v4.2 catalog (34MB, gitignored)
+│   └── hyg_v42.csv.gz             # Compressed source (14MB)
+├── public/
+│   └── data/
+│       ├── stars.bin              # Pre-processed binary star catalog (312KB)
+│       └── named-stars.json       # 401 named stars with metadata
 ├── src/
+│   ├── data/
+│   │   ├── __tests__/
+│   │   │   ├── loadCatalog.test.ts # 11 coordinate/vertex tests
+│   │   │   └── starColor.test.ts   # 14 B-V→RGB conversion tests
+│   │   ├── loadCatalog.ts         # Binary catalog loader + vertex builder
+│   │   └── starColor.ts           # B-V → RGB (Ballesteros + Helland + LUT)
 │   ├── export/
 │   │   ├── exporter.ts            # PNG individual + cross layout export
 │   │   └── index.ts
@@ -104,11 +148,12 @@ SkyboxGenerator/
 │   │   ├── useKeyboardShortcuts.ts # R, F, P, 1-5 shortcuts
 │   │   └── index.ts
 │   ├── layers/
-│   │   ├── BackgroundLayer.ts     # Solid color background
-│   │   ├── NebulaLayer.ts         # 4D noise nebula clouds
-│   │   ├── PointStarLayer.ts      # GPU point-sprite stars
+│   │   ├── BackgroundLayer.ts     # Solid color background (order 0)
+│   │   ├── CatalogStarLayer.ts    # Real HYG catalog stars (order 15)
+│   │   ├── NebulaLayer.ts         # 4D noise nebula clouds (order 20)
+│   │   ├── PointStarLayer.ts      # Procedural point-sprite stars (order 10)
 │   │   ├── RenderLayer.ts         # Layer interface
-│   │   ├── SunLayer.ts            # Sun with corona + glow
+│   │   ├── SunLayer.ts            # Sun with corona + glow (order 30)
 │   │   └── index.ts
 │   ├── presets/
 │   │   └── presets.ts             # 5 built-in + custom preset system
@@ -116,10 +161,12 @@ SkyboxGenerator/
 │   │   ├── CubemapFBO.ts          # Cubemap framebuffer object
 │   │   ├── FullscreenQuad.ts      # Fullscreen quad geometry
 │   │   ├── Renderer.ts            # WebGL2 context manager
-│   │   ├── SkyboxPipeline.ts      # Pipeline orchestrator
+│   │   ├── SkyboxPipeline.ts      # Pipeline orchestrator (5 layers)
 │   │   └── index.ts
 │   ├── shaders/
 │   │   ├── background.frag.glsl
+│   │   ├── catalog-stars.frag.glsl # HYG catalog star fragment shader
+│   │   ├── catalog-stars.vert.glsl # HYG catalog star vertex shader
 │   │   ├── fullscreen.vert.glsl
 │   │   ├── nebula.frag.glsl
 │   │   ├── point-stars.frag.glsl
@@ -148,6 +195,7 @@ SkyboxGenerator/
 │   │   │   └── AppLayout.tsx      # 3-panel layout
 │   │   └── panels/
 │   │       ├── BackgroundPanel.tsx
+│   │       ├── CatalogStarPanel.tsx # HYG catalog star controls
 │   │       ├── ExportPanel.tsx
 │   │       ├── NebulaPanel.tsx
 │   │       ├── PresetPanel.tsx
@@ -184,6 +232,8 @@ SkyboxGenerator/
 | `background.frag.glsl`     | Solid color fill                                        |
 | `point-stars.vert.glsl`    | Per-vertex position/size/color from VBO, GL_POINTS      |
 | `point-stars.frag.glsl`    | Soft circular point sprites with brightness falloff     |
+| `catalog-stars.vert.glsl`  | HYG catalog stars — per-star position/size/color        |
+| `catalog-stars.frag.glsl`  | Airy-like core + halo glow profile for catalog stars    |
 | `nebula.frag.glsl`         | 4D simplex noise FBM, 3-color gradient, density/falloff |
 | `sun.frag.glsl`            | Angular disk + smoothstep corona + power-law glow       |
 | `skybox-preview.frag.glsl` | Cubemap texture sampling for viewport preview           |
@@ -192,8 +242,13 @@ SkyboxGenerator/
 
 ## Next Step
 
-**Milestone 2 — Real Star Data & Constellations**
+**Phase 2.3 — Constellation Data & Rendering**
 
-- Phase 2.1: HYG star catalog data pipeline (CSV parsing, RA/Dec→Cartesian, B-V→RGB)
-- Phase 2.2: Catalog star rendering layer (real star positions, magnitude-based sizing)
-- Phase 2.3: Constellation overlay (stick figures, labels, IAU boundaries)
+- Task 2.3.1: Source and process constellation stick figure data (star ID pairs)
+- Task 2.3.2: Source and process IAU boundary polygon data
+- Task 2.3.3: JSON loader for line/boundary data
+- Task 2.3.4: GL_LINES rendering for stick figures
+- Task 2.3.5: Constellation boundary rendering (dashed lines)
+- Task 2.3.6: Constellation label rendering
+- Task 2.3.7: Per-constellation toggle UI
+- Task 2.3.8: ConstellationPanel.tsx

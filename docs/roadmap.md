@@ -143,28 +143,28 @@ UI panels ✅
 
 > **Goal**: Render real stars from HYG database with accurate positions and spectral colors. Overlay constellation stick figures, labels, and IAU boundaries.
 
-### Phase 2.1 — HYG Data Pipeline
+### Phase 2.1 — HYG Data Pipeline ✅
 
-| Task  | Description                                              | Est. |
-| ----- | -------------------------------------------------------- | ---- |
-| 2.1.1 | Download and include `hygdata_v41.csv` in `public/data/` | 30m  |
-| 2.1.2 | `hyg-stars.ts` — CSV parser (custom, no heavy lib)       | 3h   |
-| 2.1.3 | RA/Dec → Cartesian coordinate conversion                 | 2h   |
-| 2.1.4 | B-V color index → RGB via Planckian locus approximation  | 3h   |
-| 2.1.5 | Magnitude → billboard size mapping (logarithmic)         | 2h   |
-| 2.1.6 | Lazy loading: fetch CSV only when catalog stars enabled  | 1h   |
-| 2.1.7 | Unit tests for coordinate conversion, color mapping      | 2h   |
+| Task  | Description                                                 | Est. | Status |
+| ----- | ----------------------------------------------------------- | ---- | ------ |
+| 2.1.1 | Download HYG v4.2 catalog + preprocess to binary (312KB)    | 30m  | ✅     |
+| 2.1.2 | `preprocess-hyg.mjs` — CSV→binary preprocessor script       | 3h   | ✅     |
+| 2.1.3 | `loadCatalog.ts` — RA/Dec → Cartesian coordinate conversion | 2h   | ✅     |
+| 2.1.4 | `starColor.ts` — B-V → RGB via Ballesteros + Helland + LUT  | 3h   | ✅     |
+| 2.1.5 | Magnitude → billboard size mapping (logarithmic)            | 2h   | ✅     |
+| 2.1.6 | Async catalog loading on layer init                         | 1h   | ✅     |
+| 2.1.7 | Unit tests (25 tests): coordinate conversion, color mapping | 2h   | ✅     |
 
-### Phase 2.2 — Catalog Star Rendering
+### Phase 2.2 — Catalog Star Rendering ✅
 
-| Task  | Description                                                       | Est. |
-| ----- | ----------------------------------------------------------------- | ---- |
-| 2.2.1 | `catalog-stars.ts` — Layer implementation using HYG data          | 6h   |
-| 2.2.2 | Catalog star shaders (`.vert` + `.frag`) — per-star size/color    | 3h   |
-| 2.2.3 | Dynamic magnitude filtering (re-filter without full GPU reupload) | 3h   |
-| 2.2.4 | Overlay modes: replace vs blend with procedural stars             | 2h   |
-| 2.2.5 | Named star labels (Canvas 2D → texture atlas → billboard)         | 4h   |
-| 2.2.6 | `CatalogStarPanel.tsx` — UI controls                              | 3h   |
+| Task  | Description                                                       | Est. | Status |
+| ----- | ----------------------------------------------------------------- | ---- | ------ |
+| 2.2.1 | `CatalogStarLayer.ts` — Layer implementation using HYG data       | 6h   | ✅     |
+| 2.2.2 | Catalog star shaders (`.vert` + `.frag`) — per-star size/color    | 3h   | ✅     |
+| 2.2.3 | Dynamic magnitude filtering (rebuild vertex data on param change) | 3h   | ✅     |
+| 2.2.4 | Overlay modes: replace vs blend with procedural stars             | 2h   | ✅     |
+| 2.2.5 | Named star labels (Canvas 2D → texture atlas → billboard)         | 4h   | 🔲     |
+| 2.2.6 | `CatalogStarPanel.tsx` — UI controls                              | 3h   | ✅     |
 
 ### Phase 2.3 — Constellation Data & Rendering
 

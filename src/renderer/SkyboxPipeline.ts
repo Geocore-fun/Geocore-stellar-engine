@@ -7,6 +7,7 @@
 
 import type { CubemapFaceData } from '@/export';
 import { BackgroundLayer } from '@/layers/BackgroundLayer';
+import { CatalogStarLayer } from '@/layers/CatalogStarLayer';
 import { NebulaLayer } from '@/layers/NebulaLayer';
 import { PointStarLayer } from '@/layers/PointStarLayer';
 import type { RenderLayer, RenderParams } from '@/layers/RenderLayer';
@@ -39,7 +40,13 @@ export class SkyboxPipeline {
     this.projectionMatrix = getCubemapProjectionMatrix();
 
     // Create default layers
-    this.layers = [new BackgroundLayer(), new PointStarLayer(), new NebulaLayer(), new SunLayer()];
+    this.layers = [
+      new BackgroundLayer(),
+      new PointStarLayer(),
+      new CatalogStarLayer(),
+      new NebulaLayer(),
+      new SunLayer(),
+    ];
 
     // Initialize all layers
     for (const layer of this.layers) {
