@@ -34,6 +34,9 @@ export function PresetPanel() {
       sun: { ...s.sun },
       catalogStars: { ...s.catalogStars },
       constellations: { ...s.constellations },
+      constellationBoundaries: { ...s.constellationBoundaries },
+      milkyWay: { ...s.milkyWay },
+      bloom: { ...s.bloom },
     };
   }, []);
 
@@ -48,6 +51,9 @@ export function PresetPanel() {
     s.setSun(data.sun);
     if (data.catalogStars) s.setCatalogStars(data.catalogStars);
     if (data.constellations) s.setConstellations(data.constellations);
+    if (data.constellationBoundaries) s.setConstellationBoundaries(data.constellationBoundaries);
+    if (data.milkyWay) s.setMilkyWay(data.milkyWay);
+    if (data.bloom) s.setBloom(data.bloom);
   }, []);
 
   /** Reset everything to factory defaults. */

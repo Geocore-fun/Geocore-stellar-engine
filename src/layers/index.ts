@@ -1,7 +1,9 @@
 export { BackgroundLayer } from './BackgroundLayer';
 export { CatalogStarLayer } from './CatalogStarLayer';
+export { ConstellationBoundaryLayer } from './ConstellationBoundaryLayer';
 export { ConstellationLabelLayer } from './ConstellationLabelLayer';
 export { ConstellationLayer } from './ConstellationLayer';
+export { MilkyWayLayer } from './MilkyWayLayer';
 export { NamedStarLabelLayer } from './NamedStarLabelLayer';
 export { NebulaLayer } from './NebulaLayer';
 export { PointStarLayer } from './PointStarLayer';

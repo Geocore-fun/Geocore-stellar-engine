@@ -13,9 +13,11 @@ import { AboutModal, ErrorBoundary, PerfOverlay, Toolbar, Viewport } from '@/ui/
 import { AppLayout } from '@/ui/layout';
 import {
   BackgroundPanel,
+  BloomPanel,
   CatalogStarPanel,
   ConstellationPanel,
   ExportPanel,
+  MilkyWayPanel,
   NebulaPanel,
   PresetPanel,
   StarFieldPanel,
@@ -44,8 +46,11 @@ function App() {
   const starField = useAppStore((s) => s.starField);
   const catalogStars = useAppStore((s) => s.catalogStars);
   const constellations = useAppStore((s) => s.constellations);
+  const constellationBoundaries = useAppStore((s) => s.constellationBoundaries);
+  const milkyWay = useAppStore((s) => s.milkyWay);
   const nebula = useAppStore((s) => s.nebula);
   const sun = useAppStore((s) => s.sun);
+  const bloom = useAppStore((s) => s.bloom);
   const needsRedraw = useAppStore((s) => s.needsRedraw);
   const clearRedraw = useAppStore((s) => s.clearRedraw);
 
@@ -89,6 +94,18 @@ function App() {
     const constellationLayer = pipeline.getLayer('constellations');
     if (constellationLayer) constellationLayer.enabled = constellations.enabled;
 
+    pipeline.getLayer('constellation-boundaries')?.updateParams({
+      ...constellationBoundaries,
+    });
+    const boundaryLayer = pipeline.getLayer('constellation-boundaries');
+    if (boundaryLayer) boundaryLayer.enabled = constellationBoundaries.enabled;
+
+    pipeline.getLayer('milky-way')?.updateParams({
+      ...milkyWay,
+    });
+    const milkyWayLayer = pipeline.getLayer('milky-way');
+    if (milkyWayLayer) milkyWayLayer.enabled = milkyWay.enabled;
+
     pipeline.getLayer('constellation-labels')?.updateParams({
       enabled: constellations.showLabels,
       opacity: constellations.labelOpacity,
@@ -110,7 +127,21 @@ function App() {
     });
     const sunLayer = pipeline.getLayer('sun');
     if (sunLayer) sunLayer.enabled = sun.enabled;
-  }, [faceSize, backgroundColor, starField, catalogStars, constellations, nebula, sun]);
+
+    // Sync bloom post-processing params
+    pipeline.setBloomParams(bloom);
+  }, [
+    faceSize,
+    backgroundColor,
+    starField,
+    catalogStars,
+    constellations,
+    constellationBoundaries,
+    milkyWay,
+    nebula,
+    sun,
+    bloom,
+  ]);
 
   // Main render loop
   const renderFrame = useCallback(() => {
@@ -161,7 +192,18 @@ function App() {
     return () => {
       if (redrawTimerRef.current) clearTimeout(redrawTimerRef.current);
     };
-  }, [seed, faceSize, backgroundColor, starField, catalogStars, constellations, nebula, sun]);
+  }, [
+    seed,
+    faceSize,
+    backgroundColor,
+    starField,
+    catalogStars,
+    constellations,
+    constellationBoundaries,
+    milkyWay,
+    nebula,
+    sun,
+  ]);
 
   // Stable callback — only stores the canvas ref, actual init happens in useEffect
   const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
@@ -257,8 +299,10 @@ function App() {
             <StarFieldPanel />
             <CatalogStarPanel />
             <ConstellationPanel />
+            <MilkyWayPanel />
             <NebulaPanel />
             <SunPanel />
+            <BloomPanel />
             <ExportPanel onExport={handleExport} />
           </>
         }

@@ -70,6 +70,11 @@ export class CubemapFBO {
     return this.texture;
   }
 
+  /** Get the underlying GL framebuffer object */
+  get glFramebuffer(): WebGLFramebuffer {
+    return this.fbo;
+  }
+
   /** Bind a specific face for rendering */
   bindFace(face: CubeFace): void {
     const { gl } = this;

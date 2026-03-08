@@ -129,6 +129,77 @@ export function CatalogStarPanel() {
               />
             </>
           )}
+
+          <div className="mt-1 mb-1 h-px bg-border" />
+
+          {/* Diffraction Spikes */}
+          <ToggleControl
+            label="Diffraction Spikes"
+            checked={catalogStars.spikesEnabled}
+            onChange={(spikesEnabled) => setCatalogStars({ spikesEnabled })}
+          />
+
+          {catalogStars.spikesEnabled && (
+            <>
+              <SliderControl
+                label="Spike Length"
+                value={catalogStars.spikeLength}
+                min={0.1}
+                max={0.5}
+                step={0.01}
+                onChange={(spikeLength) => setCatalogStars({ spikeLength })}
+              />
+
+              <SliderControl
+                label="Spike Brightness"
+                value={catalogStars.spikeBrightness}
+                min={0}
+                max={2}
+                step={0.05}
+                onChange={(spikeBrightness) => setCatalogStars({ spikeBrightness })}
+              />
+
+              <SliderControl
+                label="Spike Rotation"
+                value={catalogStars.spikeRotation}
+                min={0}
+                max={90}
+                step={1}
+                format={(v) => `${v}°`}
+                onChange={(spikeRotation) => setCatalogStars({ spikeRotation })}
+              />
+
+              <SliderControl
+                label="Min Size Threshold"
+                value={catalogStars.spikeThreshold}
+                min={1}
+                max={6}
+                step={0.5}
+                onChange={(spikeThreshold) => setCatalogStars({ spikeThreshold })}
+              />
+            </>
+          )}
+
+          <div className="mt-1 mb-1 h-px bg-border" />
+
+          {/* Star Twinkle */}
+          <ToggleControl
+            label="Twinkle"
+            checked={catalogStars.twinkleEnabled}
+            onChange={(twinkleEnabled) => setCatalogStars({ twinkleEnabled })}
+          />
+
+          {catalogStars.twinkleEnabled && (
+            <SliderControl
+              label="Twinkle Amount"
+              value={catalogStars.twinkleAmount}
+              min={0}
+              max={1}
+              step={0.05}
+              format={(v) => `${Math.round(v * 100)}%`}
+              onChange={(twinkleAmount) => setCatalogStars({ twinkleAmount })}
+            />
+          )}
         </>
       )}
     </PanelSection>

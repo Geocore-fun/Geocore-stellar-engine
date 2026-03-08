@@ -8,13 +8,16 @@
 import type { CubemapFaceData } from '@/export';
 import { BackgroundLayer } from '@/layers/BackgroundLayer';
 import { CatalogStarLayer } from '@/layers/CatalogStarLayer';
+import { ConstellationBoundaryLayer } from '@/layers/ConstellationBoundaryLayer';
 import { ConstellationLabelLayer } from '@/layers/ConstellationLabelLayer';
 import { ConstellationLayer } from '@/layers/ConstellationLayer';
+import { MilkyWayLayer } from '@/layers/MilkyWayLayer';
 import { NamedStarLabelLayer } from '@/layers/NamedStarLabelLayer';
 import { NebulaLayer } from '@/layers/NebulaLayer';
 import { PointStarLayer } from '@/layers/PointStarLayer';
 import type { RenderLayer, RenderParams } from '@/layers/RenderLayer';
 import { SunLayer } from '@/layers/SunLayer';
+import { BloomPass, type BloomParams } from '@/renderer/BloomPass';
 import { CubemapFBO } from '@/renderer/CubemapFBO';
 import { FullscreenQuad } from '@/renderer/FullscreenQuad';
 import { Renderer } from '@/renderer/Renderer';
@@ -37,9 +40,20 @@ export class SkyboxPipeline {
   private previewUInvViewProj: WebGLUniformLocation | null = null;
   private previewUCubemap: WebGLUniformLocation | null = null;
 
+  // Post-processing
+  private bloomPass: BloomPass;
+  private bloomParams: BloomParams = {
+    enabled: false,
+    threshold: 0.8,
+    softKnee: 0.5,
+    intensity: 1.0,
+    iterations: 3,
+  };
+
   constructor(canvas: HTMLCanvasElement, faceSize: number) {
     this.renderer = new Renderer({ canvas, faceSize });
     this.cubemapFBO = new CubemapFBO(this.renderer.gl, faceSize);
+    this.bloomPass = new BloomPass(this.renderer, faceSize);
     this.projectionMatrix = getCubemapProjectionMatrix();
 
     // Create default layers
@@ -48,8 +62,10 @@ export class SkyboxPipeline {
       new PointStarLayer(),
       new NamedStarLabelLayer(),
       new CatalogStarLayer(),
+      new ConstellationBoundaryLayer(),
       new ConstellationLayer(),
       new ConstellationLabelLayer(),
+      new MilkyWayLayer(),
       new NebulaLayer(),
       new SunLayer(),
     ];
@@ -86,6 +102,12 @@ export class SkyboxPipeline {
   setFaceSize(size: number): void {
     this.renderer.faceSize = size;
     this.cubemapFBO.resize(size);
+    this.bloomPass.resize(size);
+  }
+
+  /** Update bloom post-processing parameters */
+  setBloomParams(params: BloomParams): void {
+    this.bloomParams = { ...params };
   }
 
   /**
@@ -111,6 +133,15 @@ export class SkyboxPipeline {
       for (const layer of sortedLayers) {
         if (!layer.enabled) continue;
         layer.render(this.renderer, params);
+      }
+
+      // Apply bloom post-processing to this face
+      if (this.bloomParams.enabled) {
+        this.bloomPass.apply(
+          this.cubemapFBO.glFramebuffer,
+          this.renderer.faceSize,
+          this.bloomParams,
+        );
       }
     }
 
@@ -179,6 +210,7 @@ export class SkyboxPipeline {
       layer.dispose();
     }
     this.previewQuad?.dispose();
+    this.bloomPass.dispose();
     this.cubemapFBO.dispose();
     this.renderer.dispose();
   }

@@ -6,13 +6,19 @@
  */
 
 import {
+  DEFAULT_BLOOM,
   DEFAULT_CATALOG_STARS,
+  DEFAULT_CONSTELLATION_BOUNDARIES,
   DEFAULT_CONSTELLATIONS,
+  DEFAULT_MILKY_WAY,
   DEFAULT_NEBULA,
   DEFAULT_STAR_FIELD,
   DEFAULT_SUN,
+  type BloomParams,
   type CatalogStarParams,
+  type ConstellationBoundaryParams,
   type ConstellationParams,
+  type MilkyWayParams,
   type NebulaParams,
   type StarFieldParams,
   type SunParams,
@@ -29,6 +35,9 @@ export interface PresetData {
   sun: SunParams;
   catalogStars?: CatalogStarParams;
   constellations?: ConstellationParams;
+  constellationBoundaries?: ConstellationBoundaryParams;
+  milkyWay?: MilkyWayParams;
+  bloom?: BloomParams;
 }
 
 export interface Preset {
@@ -53,6 +62,9 @@ const DEFAULT: Preset = {
     sun: { ...DEFAULT_SUN },
     catalogStars: { ...DEFAULT_CATALOG_STARS },
     constellations: { ...DEFAULT_CONSTELLATIONS },
+    constellationBoundaries: { ...DEFAULT_CONSTELLATION_BOUNDARIES },
+    milkyWay: { ...DEFAULT_MILKY_WAY },
+    bloom: { ...DEFAULT_BLOOM },
   },
 };
 

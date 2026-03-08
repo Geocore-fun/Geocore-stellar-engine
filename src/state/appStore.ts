@@ -78,6 +78,81 @@ export interface CatalogStarParams {
   labelScale: number;
   /** Maximum magnitude for showing labels */
   labelMagnitudeLimit: number;
+  /** Enable diffraction spikes on bright stars */
+  spikesEnabled: boolean;
+  /** Spike length (0-1) */
+  spikeLength: number;
+  /** Spike brightness (0-2) */
+  spikeBrightness: number;
+  /** Spike rotation in degrees */
+  spikeRotation: number;
+  /** Minimum star size for spikes */
+  spikeThreshold: number;
+  /** Enable seed-based twinkle (brightness variation) */
+  twinkleEnabled: boolean;
+  /** Twinkle amount (0-1): max brightness reduction */
+  twinkleAmount: number;
+}
+
+/** Constellation boundary parameters */
+export interface ConstellationBoundaryParams {
+  enabled: boolean;
+  /** Line opacity (0-1) */
+  opacity: number;
+  /** Line color as hex */
+  lineColor: HexColor;
+  /** Line width in pixels */
+  lineWidth: number;
+  /** Dash cycle length (radians on unit sphere) */
+  dashLength: number;
+  /** Fraction of dash that is visible (0-1) */
+  dashRatio: number;
+}
+
+/** Milky Way layer parameters */
+export interface MilkyWayParams {
+  enabled: boolean;
+  /** Color at galactic center / bright regions */
+  coreColor: HexColor;
+  /** Color at edges of the band */
+  edgeColor: HexColor;
+  /** Overall brightness multiplier */
+  brightness: number;
+  /** Noise density/intensity */
+  density: number;
+  /** Width of the band (higher = narrower) */
+  width: number;
+  /** Noise spatial scale */
+  scale: number;
+  /** Tilt angle of galactic plane (degrees) */
+  tilt: number;
+  /** Rotation of galactic plane around Y axis (degrees) */
+  rotation: number;
+  /** Noise octaves */
+  octaves: number;
+  /** Noise lacunarity */
+  lacunarity: number;
+  /** Noise gain */
+  gain: number;
+  /** 3D offset for panning */
+  offset: [number, number, number];
+  /** Extra brightness at galactic center */
+  coreBrightness: number;
+  /** Angular size of core bulge */
+  coreSize: number;
+}
+
+/** Bloom post-processing parameters */
+export interface BloomParams {
+  enabled: boolean;
+  /** Luminance threshold for bright extraction (0-1) */
+  threshold: number;
+  /** Soft knee for smooth threshold falloff (0-1) */
+  softKnee: number;
+  /** Bloom intensity multiplier (0-5) */
+  intensity: number;
+  /** Number of blur iterations (1-8) */
+  iterations: number;
 }
 
 /** Sun layer parameters */
@@ -106,8 +181,11 @@ export interface AppState {
   starField: StarFieldParams;
   catalogStars: CatalogStarParams;
   constellations: ConstellationParams;
+  constellationBoundaries: ConstellationBoundaryParams;
+  milkyWay: MilkyWayParams;
   nebula: NebulaParams;
   sun: SunParams;
+  bloom: BloomParams;
 
   // ── Export ──
   exportFormat: ExportFormat;
@@ -128,8 +206,11 @@ export interface AppState {
   setStarField: (params: Partial<StarFieldParams>) => void;
   setCatalogStars: (params: Partial<CatalogStarParams>) => void;
   setConstellations: (params: Partial<ConstellationParams>) => void;
+  setConstellationBoundaries: (params: Partial<ConstellationBoundaryParams>) => void;
+  setMilkyWay: (params: Partial<MilkyWayParams>) => void;
   setNebula: (params: Partial<NebulaParams>) => void;
   setSun: (params: Partial<SunParams>) => void;
+  setBloom: (params: Partial<BloomParams>) => void;
   setExportFormat: (format: ExportFormat) => void;
   setExportResolution: (resolution: number) => void;
   setIsExporting: (exporting: boolean) => void;
@@ -180,6 +261,15 @@ export const DEFAULT_CONSTELLATIONS: ConstellationParams = {
   labelScale: 0.7,
 };
 
+export const DEFAULT_CONSTELLATION_BOUNDARIES: ConstellationBoundaryParams = {
+  enabled: false,
+  opacity: 0.15,
+  lineColor: '#445588',
+  lineWidth: 1.0,
+  dashLength: 0.06,
+  dashRatio: 0.5,
+};
+
 export const DEFAULT_CATALOG_STARS: CatalogStarParams = {
   enabled: true,
   magnitudeLimit: 6.5,
@@ -191,6 +281,21 @@ export const DEFAULT_CATALOG_STARS: CatalogStarParams = {
   labelColor: '#ccddee',
   labelScale: 0.6,
   labelMagnitudeLimit: 2.5,
+  spikesEnabled: false,
+  spikeLength: 0.4,
+  spikeBrightness: 0.6,
+  spikeRotation: 45,
+  spikeThreshold: 3.0,
+  twinkleEnabled: false,
+  twinkleAmount: 0.4,
+};
+
+export const DEFAULT_BLOOM: BloomParams = {
+  enabled: false,
+  threshold: 0.8,
+  softKnee: 0.5,
+  intensity: 1.0,
+  iterations: 3,
 };
 
 export const DEFAULT_SUN: SunParams = {
@@ -202,6 +307,24 @@ export const DEFAULT_SUN: SunParams = {
   coronaIntensity: 0.6,
   glowIntensity: 0.35,
   limbDarkening: 0.6,
+};
+
+export const DEFAULT_MILKY_WAY: MilkyWayParams = {
+  enabled: false,
+  coreColor: '#c4b5a0',
+  edgeColor: '#3a3550',
+  brightness: 0.5,
+  density: 1.2,
+  width: 4.0,
+  scale: 1.5,
+  tilt: 62.87,
+  rotation: 0,
+  octaves: 5,
+  lacunarity: 2.0,
+  gain: 0.5,
+  offset: [0, 0, 0],
+  coreBrightness: 0.3,
+  coreSize: 0.8,
 };
 
 export const useAppStore = create<AppState>()(
@@ -224,8 +347,11 @@ export const useAppStore = create<AppState>()(
         starField: DEFAULT_STAR_FIELD,
         catalogStars: DEFAULT_CATALOG_STARS,
         constellations: DEFAULT_CONSTELLATIONS,
+        constellationBoundaries: DEFAULT_CONSTELLATION_BOUNDARIES,
+        milkyWay: DEFAULT_MILKY_WAY,
         nebula: DEFAULT_NEBULA,
         sun: DEFAULT_SUN,
+        bloom: DEFAULT_BLOOM,
 
         // ── Export defaults ──
         exportFormat: 'png-individual',
@@ -258,6 +384,16 @@ export const useAppStore = create<AppState>()(
             constellations: { ...state.constellations, ...params },
             needsRedraw: true,
           })),
+        setConstellationBoundaries: (params) =>
+          set((state) => ({
+            constellationBoundaries: { ...state.constellationBoundaries, ...params },
+            needsRedraw: true,
+          })),
+        setMilkyWay: (params) =>
+          set((state) => ({
+            milkyWay: { ...state.milkyWay, ...params },
+            needsRedraw: true,
+          })),
         setNebula: (params) =>
           set((state) => ({
             nebula: { ...state.nebula, ...params },
@@ -266,6 +402,11 @@ export const useAppStore = create<AppState>()(
         setSun: (params) =>
           set((state) => ({
             sun: { ...state.sun, ...params },
+            needsRedraw: true,
+          })),
+        setBloom: (params) =>
+          set((state) => ({
+            bloom: { ...state.bloom, ...params },
             needsRedraw: true,
           })),
         setExportFormat: (exportFormat) => set({ exportFormat }),
@@ -287,8 +428,11 @@ export const useAppStore = create<AppState>()(
             starField: { ...DEFAULT_STAR_FIELD },
             catalogStars: { ...DEFAULT_CATALOG_STARS },
             constellations: { ...DEFAULT_CONSTELLATIONS },
+            constellationBoundaries: { ...DEFAULT_CONSTELLATION_BOUNDARIES },
+            milkyWay: { ...DEFAULT_MILKY_WAY },
             nebula: { ...DEFAULT_NEBULA },
             sun: { ...DEFAULT_SUN },
+            bloom: { ...DEFAULT_BLOOM },
             needsRedraw: true,
           }),
       }),
@@ -302,8 +446,11 @@ export const useAppStore = create<AppState>()(
           starField: state.starField,
           catalogStars: state.catalogStars,
           constellations: state.constellations,
+          constellationBoundaries: state.constellationBoundaries,
+          milkyWay: state.milkyWay,
           nebula: state.nebula,
           sun: state.sun,
+          bloom: state.bloom,
           exportFormat: state.exportFormat,
           exportResolution: state.exportResolution,
         }),

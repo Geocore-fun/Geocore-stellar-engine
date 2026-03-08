@@ -27,6 +27,20 @@ export interface CatalogStarParams {
   sizeScale: number;
   /** Blend mode: 'overlay' renders on top, 'replace' hides procedural stars */
   blendMode: 'overlay' | 'replace';
+  /** Enable diffraction spikes */
+  spikesEnabled: boolean;
+  /** Spike length (0-1) */
+  spikeLength: number;
+  /** Spike brightness (0-2) */
+  spikeBrightness: number;
+  /** Spike rotation in degrees */
+  spikeRotation: number;
+  /** Minimum star size for spikes */
+  spikeThreshold: number;
+  /** Enable seed-based twinkle (brightness variation) */
+  twinkleEnabled: boolean;
+  /** Twinkle amount (0-1): max brightness reduction */
+  twinkleAmount: number;
 }
 
 const DEFAULT_PARAMS: CatalogStarParams = {
@@ -35,6 +49,13 @@ const DEFAULT_PARAMS: CatalogStarParams = {
   brightness: 1.0,
   sizeScale: 1.0,
   blendMode: 'overlay',
+  spikesEnabled: false,
+  spikeLength: 0.4,
+  spikeBrightness: 0.6,
+  spikeRotation: 45,
+  spikeThreshold: 3.0,
+  twinkleEnabled: false,
+  twinkleAmount: 0.4,
 };
 
 export class CatalogStarLayer implements RenderLayer {
@@ -49,6 +70,18 @@ export class CatalogStarLayer implements RenderLayer {
   private uViewProjLoc: WebGLUniformLocation | null = null;
   private uFaceSizeLoc: WebGLUniformLocation | null = null;
   private uBrightnessLoc: WebGLUniformLocation | null = null;
+
+  // Diffraction spike uniforms
+  private uSpikesEnabledLoc: WebGLUniformLocation | null = null;
+  private uSpikeLengthLoc: WebGLUniformLocation | null = null;
+  private uSpikeBrightnessLoc: WebGLUniformLocation | null = null;
+  private uSpikeRotationLoc: WebGLUniformLocation | null = null;
+  private uSpikeThresholdLoc: WebGLUniformLocation | null = null;
+
+  // Twinkle uniforms
+  private uTwinkleEnabledLoc: WebGLUniformLocation | null = null;
+  private uTwinkleAmountLoc: WebGLUniformLocation | null = null;
+  private uTwinkleSeedLoc: WebGLUniformLocation | null = null;
 
   private params: CatalogStarParams = { ...DEFAULT_PARAMS };
   private gl: WebGL2RenderingContext | null = null;
@@ -74,6 +107,18 @@ export class CatalogStarLayer implements RenderLayer {
     this.uViewProjLoc = gl.getUniformLocation(this.program, 'uViewProj');
     this.uFaceSizeLoc = gl.getUniformLocation(this.program, 'uFaceSize');
     this.uBrightnessLoc = gl.getUniformLocation(this.program, 'uBrightness');
+
+    // Spike uniforms
+    this.uSpikesEnabledLoc = gl.getUniformLocation(this.program, 'uSpikesEnabled');
+    this.uSpikeLengthLoc = gl.getUniformLocation(this.program, 'uSpikeLength');
+    this.uSpikeBrightnessLoc = gl.getUniformLocation(this.program, 'uSpikeBrightness');
+    this.uSpikeRotationLoc = gl.getUniformLocation(this.program, 'uSpikeRotation');
+    this.uSpikeThresholdLoc = gl.getUniformLocation(this.program, 'uSpikeThreshold');
+
+    // Twinkle uniforms
+    this.uTwinkleEnabledLoc = gl.getUniformLocation(this.program, 'uTwinkleEnabled');
+    this.uTwinkleAmountLoc = gl.getUniformLocation(this.program, 'uTwinkleAmount');
+    this.uTwinkleSeedLoc = gl.getUniformLocation(this.program, 'uTwinkleSeed');
 
     this.vao = gl.createVertexArray();
     this.vbo = gl.createBuffer();
@@ -159,6 +204,18 @@ export class CatalogStarLayer implements RenderLayer {
     gl.uniformMatrix4fv(this.uViewProjLoc, false, viewProj as Float32Array);
     gl.uniform1f(this.uFaceSizeLoc, params.faceSize);
     gl.uniform1f(this.uBrightnessLoc, this.params.brightness);
+
+    // Set diffraction spike uniforms
+    gl.uniform1i(this.uSpikesEnabledLoc, this.params.spikesEnabled ? 1 : 0);
+    gl.uniform1f(this.uSpikeLengthLoc, this.params.spikeLength);
+    gl.uniform1f(this.uSpikeBrightnessLoc, this.params.spikeBrightness);
+    gl.uniform1f(this.uSpikeRotationLoc, (this.params.spikeRotation * Math.PI) / 180.0);
+    gl.uniform1f(this.uSpikeThresholdLoc, this.params.spikeThreshold);
+
+    // Set twinkle uniforms
+    gl.uniform1i(this.uTwinkleEnabledLoc, this.params.twinkleEnabled ? 1 : 0);
+    gl.uniform1f(this.uTwinkleAmountLoc, this.params.twinkleAmount);
+    gl.uniform1f(this.uTwinkleSeedLoc, params.seed);
 
     // Enable additive blending for stars
     gl.enable(gl.BLEND);

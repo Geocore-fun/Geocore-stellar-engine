@@ -1,7 +1,9 @@
 export { BackgroundPanel } from './BackgroundPanel';
+export { BloomPanel } from './BloomPanel';
 export { CatalogStarPanel } from './CatalogStarPanel';
 export { ConstellationPanel } from './ConstellationPanel';
 export { ExportPanel } from './ExportPanel';
+export { MilkyWayPanel } from './MilkyWayPanel';
 export { NebulaPanel } from './NebulaPanel';
 export { PresetPanel } from './PresetPanel';
 export { StarFieldPanel } from './StarFieldPanel';

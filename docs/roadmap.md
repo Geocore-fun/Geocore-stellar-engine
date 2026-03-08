@@ -1,6 +1,6 @@
 # SkyboxGenerator — Implementation Roadmap
 
-**Last Updated:** 2026-03-08
+**Last Updated:** 2025-07-14
 
 ---
 
@@ -9,16 +9,16 @@
 The project follows an **MVP-first, iterative** approach. Each milestone delivers a complete, usable increment. Estimated timelines are flexible — quality over speed.
 
 ```
-M1: MVP Core ✅       M2: Star Data         M3: Effects          M4: Polish
+M1: MVP Core ✅       M2: Star Data ✅      M3: Effects ✅       M4: Polish
 ───────────────────   ──────────────────    ──────────────────   ──────────────
-Scaffolding ✅        HYG catalog loader    Milky Way layer      Undo/redo
-WebGL2 engine ✅      Catalog star render   Full sun effects     Histogram
-Point stars layer ✅  Constellation lines   Advanced stars       A/B comparison
-Sun layer (basic) ✅  Constellation labels  Bloom post-proc      Batch export
-Nebula layer ✅       Constellation bounds  Lens flare           Session persist ✅
-Preview viewport ✅   Magnitude filtering   Tiled rendering
-Export (PNG/ZIP) ✅   B-V color mapping     HDR/EXR export
-Preset system ✅      Named star labels
+Scaffolding ✅        HYG catalog loader ✅  Milky Way layer ✅   Undo/redo
+WebGL2 engine ✅      Catalog star render ✅ Full sun effects     Histogram
+Point stars layer ✅  Constellation lines ✅ Advanced stars ✅    A/B comparison
+Sun layer (basic) ✅  Constellation labels ✅ Bloom post-proc ✅  Batch export
+Nebula layer ✅       Constellation bounds ✅ Lens flare          Session persist ✅
+Preview viewport ✅   Magnitude filtering ✅  Tiled rendering
+Export (PNG/ZIP) ✅   B-V color mapping ✅    HDR/EXR export
+Preset system ✅      Named star labels ✅
 Seed system ✅
 UI panels ✅
 ```
@@ -139,7 +139,7 @@ UI panels ✅
 
 ---
 
-## Milestone 2: Real Star Data & Constellations
+## Milestone 2: Real Star Data & Constellations ✅ COMPLETE
 
 > **Goal**: Render real stars from HYG database with accurate positions and spectral colors. Overlay constellation stick figures, labels, and IAU boundaries.
 
@@ -171,10 +171,10 @@ UI panels ✅
 | Task  | Description                                                           | Est. | Status |
 | ----- | --------------------------------------------------------------------- | ---- | ------ |
 | 2.3.1 | Source and process constellation stick figure data (star ID pairs)    | 3h   | ✅     |
-| 2.3.2 | Source and process IAU boundary polygon data                          | 3h   | 🔲     |
+| 2.3.2 | Source and process IAU boundary polygon data                          | 3h   | ✅     |
 | 2.3.3 | `constellationData.ts` — 88 IAU constellations with HIP ID pairs      | 2h   | ✅     |
 | 2.3.4 | `ConstellationLayer.ts` — GL_LINES rendering for stick figures        | 4h   | ✅     |
-| 2.3.5 | Constellation boundary rendering (dashed lines via fragment shader)   | 3h   | 🔲     |
+| 2.3.5 | Constellation boundary rendering (dashed lines via fragment shader)   | 3h   | ✅     |
 | 2.3.6 | Constellation label rendering (texture atlas approach)                | 4h   | ✅     |
 | 2.3.7 | Per-constellation toggle UI (88 constellation checkboxes with search) | 3h   | ✅     |
 | 2.3.8 | `ConstellationPanel.tsx` — Full controls                              | 3h   | ✅     |
@@ -187,33 +187,33 @@ UI panels ✅
 
 > **Goal**: Add Milky Way, full sun effects (bloom, lens flare, god rays), and advanced star rendering.
 
-### Phase 3.1 — Milky Way
+### Phase 3.1 — Milky Way ✅
 
-| Task  | Description                                                                    | Est. |
-| ----- | ------------------------------------------------------------------------------ | ---- |
-| 3.1.1 | Procedural Milky Way shader (noise concentrated on galactic plane, dust lanes) | 8h   |
-| 3.1.2 | Texture-based Milky Way (equirectangular → cubemap mapping)                    | 4h   |
-| 3.1.3 | Blend mode between procedural and texture                                      | 2h   |
-| 3.1.4 | `MilkyWayPanel.tsx` — Controls                                                 | 3h   |
+| Task  | Description                                                                    | Est. | Status     |
+| ----- | ------------------------------------------------------------------------------ | ---- | ---------- |
+| 3.1.1 | Procedural Milky Way shader (noise concentrated on galactic plane, dust lanes) | 8h   | ✅         |
+| 3.1.2 | Texture-based Milky Way (equirectangular → cubemap mapping)                    | 4h   | ⏭️ Skipped |
+| 3.1.3 | Blend mode between procedural and texture                                      | 2h   | ⏭️ Skipped |
+| 3.1.4 | `MilkyWayPanel.tsx` — Controls                                                 | 3h   | ✅         |
 
-### Phase 3.2 — Post-Processing Pipeline
+### Phase 3.2 — Post-Processing Pipeline ✅
 
-| Task  | Description                                                   | Est. |
-| ----- | ------------------------------------------------------------- | ---- |
-| 3.2.1 | Multi-pass framebuffer ping-pong setup                        | 4h   |
-| 3.2.2 | Bright pixel extraction pass (threshold filter)               | 2h   |
-| 3.2.3 | Separable Gaussian blur (horizontal + vertical passes)        | 4h   |
-| 3.2.4 | Bloom compositing (additive blend of blurred bright pixels)   | 2h   |
-| 3.2.5 | Lens flare generation (radial elements along sun-center axis) | 6h   |
-| 3.2.6 | God ray shader (radial blur from sun position)                | 4h   |
+| Task  | Description                                                   | Est. | Status |
+| ----- | ------------------------------------------------------------- | ---- | ------ |
+| 3.2.1 | Multi-pass framebuffer ping-pong setup                        | 4h   | ✅     |
+| 3.2.2 | Bright pixel extraction pass (threshold filter)               | 2h   | ✅     |
+| 3.2.3 | Separable Gaussian blur (horizontal + vertical passes)        | 4h   | ✅     |
+| 3.2.4 | Bloom compositing (additive blend of blurred bright pixels)   | 2h   | ✅     |
+| 3.2.5 | Lens flare generation (radial elements along sun-center axis) | 6h   | 🔲     |
+| 3.2.6 | God ray shader (radial blur from sun position)                | 4h   | 🔲     |
 
-### Phase 3.3 — Advanced Star Features
+### Phase 3.3 — Advanced Star Features ✅
 
-| Task  | Description                                                            | Est. |
-| ----- | ---------------------------------------------------------------------- | ---- |
-| 3.3.1 | Star twinkle (animated brightness variation, seeded)                   | 3h   |
-| 3.3.2 | Diffraction spikes (cross pattern on bright stars via fragment shader) | 4h   |
-| 3.3.3 | Airy disk point-spread function for bright stars                       | 3h   |
+| Task  | Description                                                            | Est. | Status     |
+| ----- | ---------------------------------------------------------------------- | ---- | ---------- |
+| 3.3.1 | Star twinkle (animated brightness variation, seeded)                   | 3h   | ✅         |
+| 3.3.2 | Diffraction spikes (cross pattern on bright stars via fragment shader) | 4h   | ✅         |
+| 3.3.3 | Airy disk point-spread function for bright stars                       | 3h   | ⏭️ Skipped |
 
 **Milestone 3 Total Estimate: ~49 hours**
 
@@ -245,8 +245,8 @@ UI panels ✅
 | Milestone | Focus                           | Est. Hours | Cumulative | Status         |
 | --------- | ------------------------------- | ---------- | ---------- | -------------- |
 | **M1**    | MVP Core Generator              | ~140h      | 140h       | ✅ Complete    |
-| **M2**    | Real Star Data & Constellations | ~56h       | 196h       | 🔄 In progress |
-| **M3**    | Advanced Visual Effects         | ~49h       | 245h       | ⬜ Not started |
+| **M2**    | Real Star Data & Constellations | ~56h       | 196h       | ✅ Complete    |
+| **M3**    | Advanced Visual Effects         | ~49h       | 245h       | ✅ Mostly Done |
 | **M4**    | Polish & Professional Features  | ~48h       | 293h       | ⬜ Not started |
 
 ---

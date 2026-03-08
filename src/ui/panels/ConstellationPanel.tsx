@@ -14,6 +14,8 @@ const ALL_ABBRS = CONSTELLATIONS.map((c) => c.abbr);
 export function ConstellationPanel() {
   const constellations = useAppStore((s) => s.constellations);
   const setConstellations = useAppStore((s) => s.setConstellations);
+  const constellationBoundaries = useAppStore((s) => s.constellationBoundaries);
+  const setConstellationBoundaries = useAppStore((s) => s.setConstellationBoundaries);
 
   const [search, setSearch] = useState('');
   const [showList, setShowList] = useState(false);
@@ -150,6 +152,55 @@ export function ConstellationPanel() {
                 step={0.1}
                 format={(v) => `${v.toFixed(1)}×`}
                 onChange={(labelScale) => setConstellations({ labelScale })}
+              />
+            </>
+          )}
+
+          <div className="mt-1 mb-1 h-px bg-border" />
+
+          {/* Boundary controls */}
+          <ToggleControl
+            label="Show Boundaries"
+            checked={constellationBoundaries.enabled}
+            onChange={(enabled) => setConstellationBoundaries({ enabled })}
+          />
+
+          {constellationBoundaries.enabled && (
+            <>
+              <SliderControl
+                label="Boundary Opacity"
+                value={constellationBoundaries.opacity}
+                min={0.05}
+                max={1.0}
+                step={0.05}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={(opacity) => setConstellationBoundaries({ opacity })}
+              />
+
+              <ColorPickerControl
+                label="Boundary Color"
+                value={constellationBoundaries.lineColor}
+                onChange={(lineColor) => setConstellationBoundaries({ lineColor })}
+              />
+
+              <SliderControl
+                label="Dash Length"
+                value={constellationBoundaries.dashLength}
+                min={0.02}
+                max={0.2}
+                step={0.01}
+                format={(v) => v.toFixed(2)}
+                onChange={(dashLength) => setConstellationBoundaries({ dashLength })}
+              />
+
+              <SliderControl
+                label="Dash Ratio"
+                value={constellationBoundaries.dashRatio}
+                min={0.1}
+                max={0.9}
+                step={0.05}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={(dashRatio) => setConstellationBoundaries({ dashRatio })}
               />
             </>
           )}

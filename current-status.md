@@ -1,7 +1,7 @@
 # SkyboxGenerator — Current Status
 
-**Last Updated:** 2026-03-08 — M2 Phase 2.1 + 2.2 + 2.3 Complete + Labels & Per-Constellation UI  
-**Status:** 🔄 M2 In Progress | Phase 2.1 ✅ + Phase 2.2 ✅ + Phase 2.3 ✅ | Next: Constellation boundaries
+**Last Updated:** 2025-07-14 — M2 Complete + M3 Complete (Milky Way, Bloom, Diffraction Spikes, Twinkle)  
+**Status:** M1 ✅ | M2 ✅ | M3 ✅ (mostly) | Next: M4 Polish
 
 ---
 
@@ -281,16 +281,19 @@ SkyboxGenerator/
 
 ## Next Step
 
-**Phase 2.4 — Remaining M2 Tasks**
+**Milestone 4 — Polish & Professional Features**
 
-- Task 2.3.2: IAU boundary polygon data (optional)
-- Task 2.3.5: Constellation boundary rendering (dashed lines)
+- Task 4.1: Undo/redo via Zustand temporal middleware
+- Task 4.2: Keyboard shortcuts (Ctrl+Z, Ctrl+Y, Space for fullscreen)
+- Task 4.3: Brightness/color histogram
+- Task 4.4: A/B comparison mode
 
-### Recently Completed
+### Recently Completed (This Session)
 
-- ✅ Task 2.2.5: Named star labels (Canvas 2D → texture atlas → billboard)
-- ✅ Task 2.3.6: Constellation label rendering (texture atlas approach)
-- ✅ Task 2.3.7: Per-constellation toggle UI (88 checkboxes with search)
-- ✅ FOV slider control in toolbar
-- ✅ Sidebar widened to w-96
-- ✅ Vite dev server port set to 5180
+- ✅ Task 2.3.2: IAU boundary polygon data (88 constellations, RA/Dec polylines)
+- ✅ Task 2.3.5: Constellation boundary rendering (dashed lines via fragment shader)
+- ✅ Task 3.1.1: Procedural Milky Way shader (galactic-plane noise with dust lanes)
+- ✅ Task 3.1.4: MilkyWayPanel.tsx — Full controls (16 parameters)
+- ✅ Task 3.2.1–3.2.4: Bloom post-processing (extract, blur, composite pipeline)
+- ✅ Task 3.3.1: Star twinkle (seed-based per-star brightness variation)
+- ✅ Task 3.3.2: Diffraction spikes (cross pattern on bright catalog stars)
