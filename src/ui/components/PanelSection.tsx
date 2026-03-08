@@ -1,7 +1,7 @@
 /**
- * iOS-style collapsible panel section.
+ * Glassmorphism collapsible panel section.
  *
- * Renders as a rounded card with a header that toggles
+ * Renders as a frosted glass card with a header that toggles
  * expand/collapse with smooth chevron rotation.
  */
 
@@ -20,10 +20,10 @@ export function PanelSection({ title, defaultOpen = true, children }: PanelSecti
     <div className="mx-3 my-1.5">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between rounded-t-lg px-3 py-2.5 text-left transition-colors hover:bg-bg-card-hover"
+        className="glass-card flex w-full items-center justify-between px-3 py-2.5 text-left transition-all"
         style={{
-          backgroundColor: 'var(--color-bg-card)',
           borderRadius: isOpen ? '10px 10px 0 0' : '10px',
+          borderBottom: isOpen ? '1px solid rgba(255,255,255,0.03)' : undefined,
         }}
       >
         <span className="text-[13px] font-semibold text-text-primary">{title}</span>
@@ -46,8 +46,13 @@ export function PanelSection({ title, defaultOpen = true, children }: PanelSecti
       </button>
       {isOpen && (
         <div
-          className="rounded-b-lg px-3 pb-3 pt-1"
-          style={{ backgroundColor: 'var(--color-bg-card)' }}
+          className="rounded-b-[10px] px-3 pb-3 pt-1"
+          style={{
+            background: 'rgba(255, 255, 255, 0.02)',
+            borderLeft: '1px solid rgba(255,255,255,0.05)',
+            borderRight: '1px solid rgba(255,255,255,0.05)',
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+          }}
         >
           {children}
         </div>

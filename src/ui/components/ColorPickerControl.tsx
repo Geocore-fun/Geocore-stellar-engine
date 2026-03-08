@@ -59,7 +59,7 @@ export function ColorPickerControl({ label, value, onChange }: ColorPickerContro
       {isOpen && (
         <div
           ref={popoverRef}
-          className="absolute right-0 top-8 z-50 overflow-hidden rounded-lg bg-bg-elevated shadow-2xl ring-1 ring-white/10"
+          className="glass-popover absolute right-0 top-8 z-50 overflow-hidden rounded-xl shadow-2xl"
           style={{ padding: 12 }}
         >
           <HexColorPicker color={value} onChange={handleChange} />
@@ -73,7 +73,7 @@ export function ColorPickerControl({ label, value, onChange }: ColorPickerContro
                   onChange(v as HexColor);
                 }
               }}
-              className="w-full rounded-md bg-bg-input px-2 py-1 text-center font-mono text-xs text-text-primary ring-1 ring-white/10 focus:outline-none focus:ring-1 focus:ring-accent"
+              className="w-full rounded-md bg-white/5 px-2 py-1 text-center font-mono text-xs text-text-primary ring-1 ring-white/10 focus:outline-none focus:ring-1 focus:ring-accent"
               maxLength={7}
             />
           </div>

@@ -6,9 +6,10 @@
  */
 
 import { downloadBlob, exportAsCrossLayout, exportAsIndividualPngs } from '@/export';
+import { useKeyboardShortcuts } from '@/hooks';
 import { SkyboxPipeline } from '@/renderer/SkyboxPipeline';
 import { useAppStore } from '@/state';
-import { Toolbar, Viewport } from '@/ui/components';
+import { AboutModal, Toolbar, Viewport } from '@/ui/components';
 import { AppLayout } from '@/ui/layout';
 import {
   BackgroundPanel,
@@ -25,6 +26,12 @@ function App() {
   const rafRef = useRef<number>(0);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [pipelineReady, setPipelineReady] = useState(false);
+
+  // Global keyboard shortcuts
+  useKeyboardShortcuts();
+
+  // About modal state (rendered at root level to avoid stacking context issues)
+  const [showAbout, setShowAbout] = useState(false);
 
   // Subscribe to store values
   const seed = useAppStore((s) => s.seed);
@@ -94,9 +101,18 @@ function App() {
     };
   }, [pipelineReady, renderFrame, syncLayers, seed]);
 
-  // Request redraw on param changes
+  // Request redraw on param changes (debounced for rapid slider movement)
+  const redrawTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   useEffect(() => {
-    useAppStore.getState().requestRedraw();
+    // Clear any pending debounce
+    if (redrawTimerRef.current) clearTimeout(redrawTimerRef.current);
+    // Debounce cubemap re-render by 30ms to batch rapid changes
+    redrawTimerRef.current = setTimeout(() => {
+      useAppStore.getState().requestRedraw();
+    }, 30);
+    return () => {
+      if (redrawTimerRef.current) clearTimeout(redrawTimerRef.current);
+    };
   }, [seed, faceSize, backgroundColor, starField, nebula, sun]);
 
   // Stable callback — only stores the canvas ref, actual init happens in useEffect
@@ -183,20 +199,23 @@ function App() {
   }, [seed]);
 
   return (
-    <AppLayout
-      toolbar={<Toolbar />}
-      sidebar={
-        <>
-          <PresetPanel />
-          <BackgroundPanel />
-          <StarFieldPanel />
-          <NebulaPanel />
-          <SunPanel />
-          <ExportPanel onExport={handleExport} />
-        </>
-      }
-      viewport={<Viewport onCanvasReady={handleCanvasReady} />}
-    />
+    <>
+      <AppLayout
+        toolbar={<Toolbar onAboutClick={() => setShowAbout(true)} />}
+        sidebar={
+          <>
+            <PresetPanel />
+            <BackgroundPanel />
+            <StarFieldPanel />
+            <NebulaPanel />
+            <SunPanel />
+            <ExportPanel onExport={handleExport} />
+          </>
+        }
+        viewport={<Viewport onCanvasReady={handleCanvasReady} />}
+      />
+      <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+    </>
   );
 }
 

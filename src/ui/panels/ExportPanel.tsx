@@ -26,7 +26,7 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
         <select
           value={exportFormat}
           onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-          className="rounded-md bg-bg-input px-2.5 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
+          className="rounded-md bg-white/5 px-2.5 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
         >
           <option value="png-individual">Individual PNGs (ZIP)</option>
           <option value="png-cross">Cross Layout PNG</option>
@@ -39,7 +39,7 @@ export function ExportPanel({ onExport }: ExportPanelProps) {
         <select
           value={exportResolution}
           onChange={(e) => setExportResolution(parseInt(e.target.value, 10))}
-          className="rounded-md bg-bg-input px-2.5 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
+          className="rounded-md bg-white/5 px-2.5 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
         >
           <option value={512}>512 × 512</option>
           <option value={1024}>1024 × 1024</option>

@@ -7,7 +7,7 @@
 
 import type { CameraState, ExportFormat, HexColor } from '@/types';
 import { create } from 'zustand';
-import { subscribeWithSelector } from 'zustand/middleware';
+import { persist, subscribeWithSelector } from 'zustand/middleware';
 
 /** Point star layer parameters */
 export interface StarFieldParams {
@@ -131,63 +131,82 @@ const DEFAULT_SUN: SunParams = {
 };
 
 export const useAppStore = create<AppState>()(
-  subscribeWithSelector((set) => ({
-    // ── Global defaults ──
-    seed: 42,
-    faceSize: 1024,
-    backgroundColor: '#000000',
+  subscribeWithSelector(
+    persist(
+      (set) => ({
+        // ── Global defaults ──
+        seed: 42,
+        faceSize: 1024,
+        backgroundColor: '#000000',
 
-    // ── Camera defaults ──
-    camera: {
-      yaw: 0,
-      pitch: 0,
-      fov: 75,
-    },
+        // ── Camera defaults ──
+        camera: {
+          yaw: 0,
+          pitch: 0,
+          fov: 75,
+        },
 
-    // ── Layer defaults ──
-    starField: DEFAULT_STAR_FIELD,
-    nebula: DEFAULT_NEBULA,
-    sun: DEFAULT_SUN,
+        // ── Layer defaults ──
+        starField: DEFAULT_STAR_FIELD,
+        nebula: DEFAULT_NEBULA,
+        sun: DEFAULT_SUN,
 
-    // ── Export defaults ──
-    exportFormat: 'png-individual',
-    exportResolution: 2048,
-    isExporting: false,
-    exportProgress: 0,
+        // ── Export defaults ──
+        exportFormat: 'png-individual',
+        exportResolution: 2048,
+        isExporting: false,
+        exportProgress: 0,
 
-    // ── UI defaults ──
-    activePanel: 'stars',
-    showPreview: true,
-    needsRedraw: true,
-
-    // ── Actions ──
-    setSeed: (seed) => set({ seed, needsRedraw: true }),
-    setFaceSize: (faceSize) => set({ faceSize, needsRedraw: true }),
-    setBackgroundColor: (backgroundColor) => set({ backgroundColor, needsRedraw: true }),
-    setCamera: (camera) => set((state) => ({ camera: { ...state.camera, ...camera } })),
-    setStarField: (params) =>
-      set((state) => ({
-        starField: { ...state.starField, ...params },
+        // ── UI defaults ──
+        activePanel: 'stars',
+        showPreview: true,
         needsRedraw: true,
-      })),
-    setNebula: (params) =>
-      set((state) => ({
-        nebula: { ...state.nebula, ...params },
-        needsRedraw: true,
-      })),
-    setSun: (params) =>
-      set((state) => ({
-        sun: { ...state.sun, ...params },
-        needsRedraw: true,
-      })),
-    setExportFormat: (exportFormat) => set({ exportFormat }),
-    setExportResolution: (exportResolution) => set({ exportResolution }),
-    setIsExporting: (isExporting) => set({ isExporting }),
-    setExportProgress: (exportProgress) => set({ exportProgress }),
-    setActivePanel: (activePanel) => set({ activePanel }),
-    setShowPreview: (showPreview) => set({ showPreview }),
-    requestRedraw: () => set({ needsRedraw: true }),
-    clearRedraw: () => set({ needsRedraw: false }),
-    randomizeSeed: () => set({ seed: Math.floor(Math.random() * 2147483647), needsRedraw: true }),
-  })),
+
+        // ── Actions ──
+        setSeed: (seed) => set({ seed, needsRedraw: true }),
+        setFaceSize: (faceSize) => set({ faceSize, needsRedraw: true }),
+        setBackgroundColor: (backgroundColor) => set({ backgroundColor, needsRedraw: true }),
+        setCamera: (camera) => set((state) => ({ camera: { ...state.camera, ...camera } })),
+        setStarField: (params) =>
+          set((state) => ({
+            starField: { ...state.starField, ...params },
+            needsRedraw: true,
+          })),
+        setNebula: (params) =>
+          set((state) => ({
+            nebula: { ...state.nebula, ...params },
+            needsRedraw: true,
+          })),
+        setSun: (params) =>
+          set((state) => ({
+            sun: { ...state.sun, ...params },
+            needsRedraw: true,
+          })),
+        setExportFormat: (exportFormat) => set({ exportFormat }),
+        setExportResolution: (exportResolution) => set({ exportResolution }),
+        setIsExporting: (isExporting) => set({ isExporting }),
+        setExportProgress: (exportProgress) => set({ exportProgress }),
+        setActivePanel: (activePanel) => set({ activePanel }),
+        setShowPreview: (showPreview) => set({ showPreview }),
+        requestRedraw: () => set({ needsRedraw: true }),
+        clearRedraw: () => set({ needsRedraw: false }),
+        randomizeSeed: () =>
+          set({ seed: Math.floor(Math.random() * 2147483647), needsRedraw: true }),
+      }),
+      {
+        name: 'skybox-generator-session',
+        // Only persist generator parameters, not transient UI/export state
+        partialize: (state) => ({
+          seed: state.seed,
+          faceSize: state.faceSize,
+          backgroundColor: state.backgroundColor,
+          starField: state.starField,
+          nebula: state.nebula,
+          sun: state.sun,
+          exportFormat: state.exportFormat,
+          exportResolution: state.exportResolution,
+        }),
+      },
+    ),
+  ),
 );

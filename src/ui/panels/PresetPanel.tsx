@@ -132,7 +132,7 @@ export function PresetPanel() {
               onKeyDown={(e) => e.key === 'Enter' && handleSave()}
               placeholder="Preset name…"
               autoFocus
-              className="flex-1 rounded-md bg-bg-input px-2 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+              className="flex-1 rounded-md bg-white/5 px-2 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent"
             />
             <button
               onClick={handleSave}
@@ -150,7 +150,7 @@ export function PresetPanel() {
         ) : (
           <button
             onClick={() => setShowSave(true)}
-            className="w-full rounded-md bg-bg-input px-3 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all hover:bg-bg-hover hover:ring-white/15 active:scale-95"
+            className="w-full rounded-md bg-white/5 px-3 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all hover:bg-white/10 hover:ring-white/15 active:scale-95"
           >
             Save Current as Preset
           </button>
@@ -159,7 +159,7 @@ export function PresetPanel() {
         {/* Import */}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="w-full rounded-md bg-bg-input px-3 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all hover:bg-bg-hover hover:ring-white/15 active:scale-95"
+          className="w-full rounded-md bg-white/5 px-3 py-1.5 text-[12px] text-text-primary ring-1 ring-white/8 transition-all hover:bg-white/10 hover:ring-white/15 active:scale-95"
         >
           Import from JSON
         </button>
