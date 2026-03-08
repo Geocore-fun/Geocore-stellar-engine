@@ -47,7 +47,7 @@ export function ConstellationPanel() {
             onChange={(lineWidth) => setConstellations({ lineWidth })}
           />
 
-          <div className="text-xs text-muted mt-[-2px] mb-1 px-1 opacity-70">
+          <div className="text-xs text-muted -mt-0.5 mb-1 px-1 opacity-70">
             Note: line width may be clamped to 1px on some GPUs.
           </div>
         </>

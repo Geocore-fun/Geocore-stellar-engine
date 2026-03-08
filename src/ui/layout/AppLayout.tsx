@@ -24,7 +24,7 @@ export function AppLayout({ sidebar, viewport, toolbar }: AppLayoutProps) {
       {/* Main content area */}
       <div className="flex min-h-0 flex-1">
         {/* Left sidebar — frosted glass panel */}
-        <aside className="glass-panel z-10 flex w-[300px] shrink-0 flex-col overflow-y-auto border-r border-border pt-1.5 pb-4">
+        <aside className="glass-panel z-10 flex w-75 shrink-0 flex-col overflow-y-auto border-r border-border pt-1.5 pb-4">
           {sidebar}
         </aside>
 

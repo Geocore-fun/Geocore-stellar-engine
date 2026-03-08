@@ -38,7 +38,7 @@ export function SliderControl({
     <div className="flex flex-col gap-1.5 py-1.5">
       <div className="flex items-center justify-between">
         <span className="text-[12px] text-text-label">{label}</span>
-        <span className="min-w-[40px] text-right font-mono text-[11px] text-text-secondary">
+        <span className="min-w-10 text-right font-mono text-[11px] text-text-secondary">
           {displayValue}
         </span>
       </div>

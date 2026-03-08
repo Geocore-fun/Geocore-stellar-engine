@@ -31,7 +31,7 @@ export function CatalogStarPanel() {
             onChange={(magnitudeLimit) => setCatalogStars({ magnitudeLimit })}
           />
 
-          <div className="text-xs text-muted mt-[-4px] mb-1 px-1 opacity-70">
+          <div className="text-xs text-muted -mt-1 mb-1 px-1 opacity-70">
             Lower = fewer, brighter stars. 6.5 ≈ naked eye limit.
           </div>
 
@@ -73,7 +73,7 @@ export function CatalogStarPanel() {
             </select>
           </label>
 
-          <div className="text-xs text-muted mt-[-2px] mb-1 px-1 opacity-70">
+          <div className="text-xs text-muted -mt-0.5 mb-1 px-1 opacity-70">
             Overlay: adds to procedural stars. Replace: hides them.
           </div>
         </>

@@ -35,7 +35,7 @@ export function PanelSection({ title, defaultOpen = true, children }: PanelSecti
       </button>
       {isOpen && (
         <div
-          className="rounded-b-[10px] px-3 pb-3 pt-1"
+          className="rounded-b-md px-3 pb-3 pt-1"
           style={{
             background: 'rgba(255, 255, 255, 0.02)',
             borderLeft: '1px solid rgba(255,255,255,0.05)',

@@ -41,7 +41,9 @@ export function Viewport({ onCanvasReady }: ViewportProps) {
   }, [handleResize]);
 
   const onCanvasReadyRef = useRef(onCanvasReady);
-  onCanvasReadyRef.current = onCanvasReady;
+  useEffect(() => {
+    onCanvasReadyRef.current = onCanvasReady;
+  }, [onCanvasReady]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -49,7 +51,6 @@ export function Viewport({ onCanvasReady }: ViewportProps) {
       onCanvasReadyRef.current(canvas);
     }
     // Only run once when the canvas mounts — not when onCanvasReady identity changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Orbit camera - mouse down

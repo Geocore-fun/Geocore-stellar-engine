@@ -97,7 +97,7 @@ export function PresetPanel() {
             {/* Export button */}
             <button
               onClick={() => handleExport(preset)}
-              className="flex h-5 w-5 items-center justify-center rounded text-[10px] opacity-0 transition-opacity group-hover:opacity-60 hover:!opacity-100"
+              className="flex h-5 w-5 items-center justify-center rounded text-[10px] opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100!"
               title="Export as JSON"
             >
               ↓
@@ -107,7 +107,7 @@ export function PresetPanel() {
             {!preset.builtIn && (
               <button
                 onClick={() => handleDelete(preset.id)}
-                className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-red-400 opacity-0 transition-opacity group-hover:opacity-60 hover:!opacity-100"
+                className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-red-400 opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100!"
                 title="Delete preset"
               >
                 ✕

@@ -78,7 +78,7 @@ describe('buildCatalogVertexData', () => {
     mockStar(5, 0.1, 8.0, 0.3), // Beyond typical limit
   ];
 
-  const identityColor = (_ci: number): [number, number, number] => [1, 1, 1];
+  const identityColor = (): [number, number, number] => [1, 1, 1];
 
   it('filters by magnitude limit', () => {
     const { count } = buildCatalogVertexData(testStars, 6.5, 1.0, identityColor);
@@ -114,7 +114,7 @@ describe('buildCatalogVertexData', () => {
   });
 
   it('applies color function to each star', () => {
-    const redColor = (_ci: number): [number, number, number] => [1, 0, 0];
+    const redColor = (): [number, number, number] => [1, 0, 0];
     const { data } = buildCatalogVertexData(testStars, 6.5, 1.0, redColor);
     // Check first star's color (offsets 4, 5, 6)
     expect(data[4]).toBe(1);
