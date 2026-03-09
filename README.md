@@ -4,10 +4,12 @@ A GPU-accelerated procedural skybox engine for low-earth orbit simulation. Gener
 
 Built for [Geocore](https://geocore.fun) — a 3D modern educational geography game, using a camera perspective from low-earth orbit.
 
+[![Deployed App](https://img.shields.io/badge/Deployed_Webpage-Geocore_Stellar_Engine-blue?style=flat-square)](https://geocore-stellar-engine.vercel.app/)
+
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![React](https://img.shields.io/badge/React-19-blue)
-![WebGL2](https://img.shields.io/badge/WebGL2-GLSL%20300%20es-green)
+![WebGL2](https://img.shields.io/badge/WebGL2-GLSL%20300%20es-darkgreen)
 
 ## Links
 
