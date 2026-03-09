@@ -1,15 +1,19 @@
 /**
- * Glassmorphism toolbar — frosted glass header bar with About button.
+ * Glassmorphism toolbar — frosted glass header bar with About & Compare buttons.
  */
 
 import { useAppStore } from '@/state';
-import { InfoIcon } from '@/ui/icons';
+import { CompareIcon, InfoIcon } from '@/ui/icons';
 
 interface ToolbarProps {
   onAboutClick: () => void;
+  /** Toggle A/B comparison mode */
+  onCompareToggle?: () => void;
+  /** Whether comparison mode is currently active */
+  isComparing?: boolean;
 }
 
-export function Toolbar({ onAboutClick }: ToolbarProps) {
+export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarProps) {
   const seed = useAppStore((s) => s.seed);
   const setSeed = useAppStore((s) => s.setSeed);
   const randomizeSeed = useAppStore((s) => s.randomizeSeed);
@@ -95,6 +99,25 @@ export function Toolbar({ onAboutClick }: ToolbarProps) {
 
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* A/B Compare button */}
+      {onCompareToggle && (
+        <button
+          onClick={onCompareToggle}
+          className={`flex h-7 items-center gap-1.5 rounded-md px-2 text-[12px] ring-1 transition-all active:scale-95 ${
+            isComparing
+              ? 'bg-accent/20 text-accent ring-accent/40 hover:bg-accent/30'
+              : 'bg-white/5 text-text-muted ring-white/8 hover:bg-white/10 hover:text-text-primary'
+          }`}
+          title={isComparing ? 'Exit A/B comparison (C)' : 'Start A/B comparison (C)'}
+        >
+          <CompareIcon size={14} />
+          <span>{isComparing ? 'Exit Compare' : 'Compare'}</span>
+        </button>
+      )}
+
+      {/* Divider */}
+      <div className="h-4 w-px bg-white/8" />
 
       {/* About button */}
       <button

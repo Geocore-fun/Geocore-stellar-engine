@@ -29,6 +29,7 @@ import {
   Toolbar,
   Viewport,
 } from '@/ui/components';
+import type { ComparisonOverlayHandle } from '@/ui/components/ComparisonOverlay';
 import { AppLayout } from '@/ui/layout';
 import {
   BackgroundPanel,
@@ -254,9 +255,17 @@ function App() {
     godRays,
   ]);
 
+  // A/B comparison state
+  const [isComparing, setIsComparing] = useState(false);
+  const comparisonRef = useRef<ComparisonOverlayHandle>(null);
+
   // Capture current canvas as data URL (for A/B comparison)
   const handleCapture = useCallback((): string | null => {
     return canvasRef.current?.toDataURL('image/png') ?? null;
+  }, []);
+
+  const handleCompareToggle = useCallback(() => {
+    comparisonRef.current?.toggle();
   }, []);
 
   // Stable callback — only stores the canvas ref, actual init happens in useEffect
@@ -434,7 +443,13 @@ function App() {
   return (
     <ErrorBoundary>
       <AppLayout
-        toolbar={<Toolbar onAboutClick={() => setShowAbout(true)} />}
+        toolbar={
+          <Toolbar
+            onAboutClick={() => setShowAbout(true)}
+            onCompareToggle={handleCompareToggle}
+            isComparing={isComparing}
+          />
+        }
         sidebar={
           <>
             <PresetPanel />
@@ -462,9 +477,11 @@ function App() {
               }}
             />
             <ComparisonOverlay
+              ref={comparisonRef}
               onCapture={handleCapture}
               canvasWidth={canvasDims.w}
               canvasHeight={canvasDims.h}
+              onStateChange={setIsComparing}
             />
           </>
         }

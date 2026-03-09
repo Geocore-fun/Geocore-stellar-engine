@@ -1,5 +1,6 @@
 export { ChevronRightIcon } from './ChevronRightIcon';
 export { CloseIcon } from './CloseIcon';
+export { CompareIcon } from './CompareIcon';
 export { CubeIcon } from './CubeIcon';
 export { ExternalLinkIcon } from './ExternalLinkIcon';
 export { GitHubIcon } from './GitHubIcon';
