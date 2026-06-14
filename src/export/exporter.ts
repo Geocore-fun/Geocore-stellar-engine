@@ -21,9 +21,24 @@ export interface CubemapFaceData {
 }
 
 /**
- * Convert raw RGBA pixel data to a PNG blob using Canvas.
+ * Copy WebGL readback pixels into a browser ImageData buffer.
+ *
+ * WebGL rows are read back bottom-first. That is normally flipped for screenshots,
+ * but cubemap exports must preserve the face texture orientation expected by Unity.
+ * Flipping each face independently inverts world-up on side faces and creates seams
+ * where the +Y/-Y faces meet the horizontal strip.
  */
-function pixelsToPngBlob(pixels: Uint8Array, width: number, height: number): Promise<Blob> {
+function copyCubemapPixelsToImageData(
+  pixels: Uint8Array,
+  imageData: ImageData,
+): void {
+  imageData.data.set(pixels);
+}
+
+/**
+ * Convert raw cubemap RGBA pixel data to a Unity-oriented PNG blob using Canvas.
+ */
+function cubemapPixelsToPngBlob(pixels: Uint8Array, width: number, height: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -34,16 +49,8 @@ function pixelsToPngBlob(pixels: Uint8Array, width: number, height: number): Pro
       return;
     }
 
-    // WebGL pixels are bottom-up, flip vertically
     const imageData = ctx.createImageData(width, height);
-    for (let y = 0; y < height; y++) {
-      const srcRow = (height - 1 - y) * width * 4;
-      const dstRow = y * width * 4;
-      for (let x = 0; x < width * 4; x++) {
-        imageData.data[dstRow + x] = pixels[srcRow + x];
-      }
-    }
-
+    copyCubemapPixelsToImageData(pixels, imageData);
     ctx.putImageData(imageData, 0, 0);
     canvas.toBlob((blob) => {
       if (blob) resolve(blob);
@@ -71,7 +78,7 @@ export async function exportAsIndividualPngs(
 
   for (let i = 0; i < faces.length; i++) {
     const { face, pixels, width, height } = faces[i];
-    const blob = await pixelsToPngBlob(pixels, width, height);
+    const blob = await cubemapPixelsToPngBlob(pixels, width, height);
     const buffer = new Uint8Array(await blob.arrayBuffer());
     files[`${faceNames[face]}.png`] = buffer;
     onProgress?.((i + 1) / faces.length);
@@ -126,15 +133,7 @@ export async function exportAsCrossLayout(
     const [col, row] = positions[face];
     const imageData = ctx.createImageData(size, size);
 
-    // Flip vertically (WebGL is bottom-up)
-    for (let y = 0; y < size; y++) {
-      const srcRow = (size - 1 - y) * size * 4;
-      const dstRow = y * size * 4;
-      for (let x = 0; x < size * 4; x++) {
-        imageData.data[dstRow + x] = data.pixels[srcRow + x];
-      }
-    }
-
+    copyCubemapPixelsToImageData(data.pixels, imageData);
     ctx.putImageData(imageData, col * size, row * size);
     onProgress?.((i + 1) / CUBE_FACES.length);
   }

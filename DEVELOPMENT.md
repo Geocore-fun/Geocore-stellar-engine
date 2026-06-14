@@ -94,20 +94,27 @@ Export generates cubemap face images with the following naming convention:
 
 #### Unity Import Steps
 
-1. Export as **Individual PNGs (ZIP)** at your desired resolution (1024–4096 recommended)
-2. Unzip and place all 6 face images in your Unity project's `Assets/Textures/Skybox/` folder
-3. In Unity, create a new **Material** with shader **Skybox/6 Sided**
-4. Assign each face texture to the corresponding slot:
-   - Front (+Z): `front.png`
-   - Back (−Z): `back.png`
-   - Left (−X): `left.png`
-   - Right (+X): `right.png`
-   - Up (+Y): `top.png`
-   - Down (−Y): `bottom.png`
-5. Go to **Window → Rendering → Lighting**, and set the skybox material in the **Environment** tab
-6. Alternatively, use the **Cross Layout PNG** export and import as a single cubemap texture in Unity (set Texture Shape to Cube, Mapping to Cross Layout)
+1. Prefer **Cross Layout PNG** for Unity skyboxes at your desired resolution (2048–4096 recommended)
+2. Import the PNG into Unity and set **Texture Shape** to **Cube**
+3. Set **Mapping** to **Auto** or **6 Frames Layout (Cubic Environment)**
+4. Set **Convolution Type** to **None**, enable **Fixup Edge Seams** if available, and test first with compression disabled
+5. Create a new **Material** with shader **Skybox/Cubemap** and assign the imported cubemap
+6. Go to **Window → Rendering → Lighting**, and set the skybox material in the **Environment** tab
 
-> **Tip**: For best quality, export at 2048px or 4096px. The cross layout produces a 4:3 aspect image (4×face width, 3×face height).
+#### Individual Face Import
+
+Use **Individual PNGs (ZIP)** only when a six-texture workflow is required. Unzip the files into your Unity project, create a **Material** with shader **Skybox/6 Sided**, then assign each face texture to the corresponding slot:
+
+- Front (+Z): `front.png`
+- Back (−Z): `back.png`
+- Left (−X): `left.png`
+- Right (+X): `right.png`
+- Up (+Y): `top.png`
+- Down (−Y): `bottom.png`
+
+> **Important**: Exported cubemap faces intentionally preserve WebGL cubemap row orientation for Unity. Do not vertically flip the PNGs in an image editor; doing so breaks the +Y/-Y joins and creates visible seams in Milky Way and nebula layers.
+
+> **Tip**: The cross layout produces a 4:3 aspect image (4×face width, 3×face height). The preferred Unity path is importing that single image as a cubemap texture rather than assigning six independent 2D textures.
 
 ## Project Structure
 

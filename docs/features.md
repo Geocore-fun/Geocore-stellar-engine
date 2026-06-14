@@ -153,8 +153,9 @@ Export the rendered cubemap in Unity-ready formats.
 
 **Unity Import Notes:**
 
-- Unity expects specific face naming conventions — documented in export dialog
-- For cross layout, Unity can import directly as `Cubemap` texture type
+- Prefer cross layout for Unity skyboxes; import it as `Texture Shape: Cube`
+- Use `Mapping: Auto` or `6 Frames Layout (Cubic Environment)`
+- Keep exported face orientation unchanged; manually flipping PNGs creates seams at the top and bottom cubemap joins
 - sRGB color space matches Unity's default for skybox materials
 
 ---
