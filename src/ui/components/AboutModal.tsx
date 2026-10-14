@@ -83,6 +83,11 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             </a>{' '}
             &mdash; a 3D geography game.
           </p>
+
+          <p className="mt-3 text-[13px] leading-relaxed text-text-secondary">
+            For Geocore on Windows (Pro): export a Cross Layout PNG at 1024 or smaller, then import
+            it from Settings.
+          </p>
         </div>
 
         {/* Links */}
