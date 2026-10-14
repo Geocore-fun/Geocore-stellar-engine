@@ -55,18 +55,18 @@ pnpm test --run # Run once
 
 | Action          | Input                         |
 | --------------- | ----------------------------- |
-| Orbit camera    | Click + drag                  |
-| Zoom (FOV)      | Scroll wheel                  |
+| Orbit camera    | Click + drag, or arrow keys with the viewport focused (Shift for bigger steps) |
+| Zoom (FOV)      | Scroll wheel, or + / − with the viewport focused |
 | Randomize seed  | Press **R** or 🎲 button      |
 | Reset camera    | Press **F**                   |
-| Load preset 1–5 | Press **1**–**5**             |
+| Load preset 1–9 | Press **1**–**9**             |
 | Toggle perf HUD | Press **P**                   |
 | Undo / Redo     | **Ctrl+Z** / **Ctrl+Shift+Z** |
 | Close modal     | Press **Escape**              |
 
 ### Sidebar Panels
 
-- **Presets** — Quick-load built-in presets or manage custom presets
+- **Presets** — Quick-load built-in presets (each with a one-line description) or manage custom presets
 - **Background** — Background fill color
 - **Star Field** — Star count, brightness range, size range, color variation
 - **Catalog Stars** — Magnitude range, color mapping, star sizing
@@ -77,7 +77,9 @@ pnpm test --run # Run once
 - **God Rays** — Exposure, decay, density, weight
 - **Bloom** — Threshold, soft knee, intensity, iterations
 - **Lens Flare** — Intensity, ghost count/spacing, halo, chromatic aberration
-- **Export** — Format, resolution, tiled rendering, batch export
+- **Export** — Format, resolution, tiled rendering, batch export, and **Export for Geocore** (Cross Layout PNG at 1024, with a file-size check against the game's 16 MiB limit)
+
+The toolbar's **Use in Geocore** button opens the import guide for Geocore Pro players; first-time visitors also see a dismissible tip pointing at it.
 
 ### Exporting for Unity
 
@@ -140,6 +142,8 @@ src/
 │   ├── CubemapFBO.ts     # Cubemap framebuffer
 │   ├── FullscreenQuad.ts # Fullscreen geometry
 │   ├── SkyboxPipeline.ts # Pipeline orchestrator
+│   ├── RenderScheduler.ts # Demand-driven frames (dirty flags, one frame per tick)
+│   ├── applySceneParams.ts # The one store → layers mapping
 │   ├── BloomPass.ts      # Multi-pass Gaussian bloom
 │   ├── GodRayPass.ts     # Volumetric light scattering
 │   ├── LensFlarePass.ts  # Analytical lens flare
@@ -163,7 +167,7 @@ src/
 | `R`            | Randomize seed             |
 | `F`            | Reset camera to default    |
 | `P`            | Toggle performance overlay |
-| `1` – `5`      | Load built-in preset 1–5   |
+| `1` – `9`      | Load built-in preset 1–9   |
 | `Ctrl+Z`       | Undo                       |
 | `Ctrl+Shift+Z` | Redo                       |
 | `Escape`       | Close modal/popover        |
@@ -176,6 +180,9 @@ src/
 - **Prettier** — auto-formatting on save
 - **Path aliases** — `@/` maps to `src/`
 - **GLSL imports** — `?raw` suffix for shader source strings
+- **Form controls** — use `Select` / `SelectField`, `Checkbox` and `ToggleControl` from `src/ui/components`, not native `<select>` or bare checkboxes. They share the dark theme, keyboard behaviour (arrows, Home/End, type-ahead, Esc) and focus ring, and the select's list flips upward near the window edge.
+- **Rendering** — never start your own animation loop. Change the store (the renderer listens) or call the scheduler through `useSkyboxRenderer`; see `docs/architecture.md`, Render Scheduling.
+- **Geocore limits** — format, face size and the 16 MiB cap live only in `src/export/geocoreTarget.ts`.
 
 ### Adding a New Render Layer
 

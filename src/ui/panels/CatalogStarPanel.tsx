@@ -3,7 +3,20 @@
  */
 
 import { useAppStore } from '@/state';
-import { ColorPickerControl, PanelSection, SliderControl, ToggleControl } from '@/ui/components';
+import {
+  ColorPickerControl,
+  PanelSection,
+  SelectField,
+  SliderControl,
+  ToggleControl,
+  type SelectOption,
+} from '@/ui/components';
+import type { CatalogStarParams } from '@/state';
+
+const BLEND_MODE_OPTIONS: SelectOption<CatalogStarParams['blendMode']>[] = [
+  { value: 'overlay', label: 'Overlay' },
+  { value: 'replace', label: 'Replace' },
+];
 
 export function CatalogStarPanel() {
   const catalogStars = useAppStore((s) => s.catalogStars);
@@ -57,25 +70,18 @@ export function CatalogStarPanel() {
 
           <div className="mt-1 mb-1 h-px bg-border" />
 
-          <label className="flex items-center justify-between gap-2 px-1 py-0.5 text-xs">
-            <span className="text-foreground/80">Blend Mode</span>
-            <select
-              value={catalogStars.blendMode}
-              onChange={(e) =>
-                setCatalogStars({
-                  blendMode: e.target.value as 'overlay' | 'replace',
-                })
-              }
-              className="glass-select text-xs px-1.5 py-0.5 rounded"
-            >
-              <option value="overlay">Overlay</option>
-              <option value="replace">Replace</option>
-            </select>
-          </label>
+          <SelectField
+            label="Blend Mode"
+            layout="inline"
+            size="sm"
+            value={catalogStars.blendMode}
+            options={BLEND_MODE_OPTIONS}
+            onChange={(blendMode) => setCatalogStars({ blendMode })}
+          />
 
-          <div className="text-xs text-muted -mt-0.5 mb-1 px-1 opacity-70">
-            Overlay: adds to procedural stars. Replace: hides them.
-          </div>
+          <p className="mt-1 mb-1 text-[11px] leading-snug text-text-muted">
+            Overlay adds the real stars to the procedural ones. Replace hides the procedural stars.
+          </p>
 
           <div className="mt-1 mb-1 h-px bg-border" />
 

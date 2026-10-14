@@ -23,11 +23,11 @@ Built for [Geocore](https://geocore.fun) — a 3D modern educational geography g
 
 Pro players on Geocore for Windows can import their own sky from a cross-layout PNG.
 
-1. Open [skybox.geocore.fun](https://skybox.geocore.fun) and design your sky.
-2. In the Export panel, set **Format** to **Cross Layout PNG** and **Resolution** to **1024 × 1024** (or **512 × 512**), then press **Export Skybox**. This saves `skybox_cross_1024.png`, a 4096 × 3072 image. The resolution is per face, and the game accepts square power-of-two faces of 1024 px or less, so 2048 and up are refused.
+1. Open [skybox.geocore.fun](https://skybox.geocore.fun) and design your sky. The Orbit presets (Orbit Clean, Quiet Orbit, Galactic Core, Orbital Sunrise and the rest from preset 7 on) are tuned as backdrops for the globe.
+2. Press **Export for Geocore** in the Export panel. It sets **Format** to **Cross Layout PNG** and **Resolution** to **1024 × 1024** and exports `skybox_cross_1024.png`, a 4096 × 3072 image, then tells you the file size. (Doing it by hand works the same: those two settings, then **Export Skybox**.) The resolution is per face, and the game accepts square power-of-two faces of 1024 px or less, so 2048 and up are refused.
 3. In Geocore for Windows (signed in, Geocore Pro), open **Settings**, find **Custom skybox**, paste the full path to the PNG (Shift+right-click ▸ Copy as path works), and press **Import skybox**. **Reset skybox** restores the default sky.
 
-The game also limits the file to 16 MiB. A busy sky with nebulae and many stars compresses poorly, so if 1024 is refused as too large, export at 512 instead. The import lasts until Geocore closes and is not saved. The full steps and refusal messages are in the [Geocore FAQ](https://geocore.fun/support).
+The game also limits the file to 16 MiB. A busy sky with nebulae and many stars compresses poorly, so if 1024 is refused as too large, export at 512 instead (the engine warns you when an export is over the limit). Every built-in preset comes in well under it at 1024. The import lasts until Geocore closes and is not saved. The full steps and refusal messages are in the [Geocore FAQ](https://geocore.fun/support); the same steps are in the app under **Use in Geocore** in the toolbar.
 
 ## Screenshots
 
@@ -73,7 +73,7 @@ The game also limits the file to 16 MiB. A busy sky with nebulae and many stars 
 
 | Feature | Description |
 | ------- | ----------- |
-| **Preset System** | 5 built-in presets + save/load/import/export custom presets (JSON) |
+| **Preset System** | 16 built-in presets (10 tuned as Geocore orbit backdrops) + save/load/import/export custom presets (JSON) |
 | **Undo/Redo** | Full parameter history with keyboard shortcuts (Ctrl+Z / Ctrl+Shift+Z) |
 | **A/B Comparison** | Side-by-side before/after comparison with split slider |
 | **Session Persistence** | Auto-saves all parameters to localStorage; restores on reload |

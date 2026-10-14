@@ -7,13 +7,15 @@ import { useCallback, useRef, useState } from 'react';
 import {
   type Preset,
   type PresetData,
+  applyPresetData,
+  BUILT_IN_PRESETS,
   deleteUserPreset,
   exportPresetAsJson,
   getAllPresets,
   importPresetFromJson,
   saveAsPreset,
 } from '@/presets';
-import { useAppStore } from '@/state';
+import { selectSceneParams, useAppStore } from '@/state';
 import { PanelSection } from '@/ui/components';
 
 export function PresetPanel() {
@@ -23,42 +25,13 @@ export function PresetPanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   /** Grab the current generator state as PresetData. */
-  const getCurrentData = useCallback((): PresetData => {
-    const s = useAppStore.getState();
-    return {
-      seed: s.seed,
-      faceSize: s.faceSize,
-      backgroundColor: s.backgroundColor,
-      starField: { ...s.starField },
-      nebula: { ...s.nebula },
-      sun: { ...s.sun },
-      catalogStars: { ...s.catalogStars },
-      constellations: { ...s.constellations },
-      constellationBoundaries: { ...s.constellationBoundaries },
-      milkyWay: { ...s.milkyWay },
-      bloom: { ...s.bloom },
-      lensFlare: { ...s.lensFlare },
-      godRays: { ...s.godRays },
-    };
-  }, []);
+  const getCurrentData = useCallback(
+    (): PresetData => structuredClone(selectSceneParams(useAppStore.getState())),
+    [],
+  );
 
   /** Apply a preset's data to the current state. */
-  const applyPreset = useCallback((data: PresetData) => {
-    const s = useAppStore.getState();
-    s.setSeed(data.seed);
-    s.setFaceSize(data.faceSize);
-    s.setBackgroundColor(data.backgroundColor);
-    s.setStarField(data.starField);
-    s.setNebula(data.nebula);
-    s.setSun(data.sun);
-    if (data.catalogStars) s.setCatalogStars(data.catalogStars);
-    if (data.constellations) s.setConstellations(data.constellations);
-    if (data.constellationBoundaries) s.setConstellationBoundaries(data.constellationBoundaries);
-    if (data.milkyWay) s.setMilkyWay(data.milkyWay);
-    if (data.bloom) s.setBloom(data.bloom);
-    if (data.lensFlare) s.setLensFlare(data.lensFlare);
-    if (data.godRays) s.setGodRays(data.godRays);
-  }, []);
+  const applyPreset = useCallback((data: PresetData) => applyPresetData(data), []);
 
   /** Reset everything to factory defaults. */
   const handleResetAll = useCallback(() => {
@@ -100,40 +73,62 @@ export function PresetPanel() {
     <PanelSection title="Presets">
       {/* Preset list */}
       <div className="flex flex-col gap-1 py-1">
-        {presets.map((preset) => (
-          <div
-            key={preset.id}
-            className="group flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/5"
-          >
-            <button
-              onClick={() => applyPreset(preset.data)}
-              className="flex-1 text-left text-[12px] text-text-primary transition-colors hover:text-white"
-              title={`Load "${preset.name}"`}
+        {presets.map((preset) => {
+          const hotkey = preset.builtIn ? BUILT_IN_PRESETS.indexOf(preset) + 1 : 0;
+          const hasHotkey = hotkey >= 1 && hotkey <= 9;
+          return (
+            <div
+              key={preset.id}
+              className="group flex items-start gap-1.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/5"
             >
-              {preset.name}
-            </button>
-
-            {/* Export button */}
-            <button
-              onClick={() => handleExport(preset)}
-              className="flex h-5 w-5 items-center justify-center rounded text-[10px] opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100!"
-              title="Export as JSON"
-            >
-              ↓
-            </button>
-
-            {/* Delete button (user presets only) */}
-            {!preset.builtIn && (
               <button
-                onClick={() => handleDelete(preset.id)}
-                className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-red-400 opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100!"
-                title="Delete preset"
+                type="button"
+                onClick={() => applyPreset(preset.data)}
+                className="focus-ring flex-1 rounded text-left"
+                title={`Load "${preset.name}"${hasHotkey ? ` (key ${hotkey})` : ''}`}
+                aria-keyshortcuts={hasHotkey ? String(hotkey) : undefined}
               >
-                ✕
+                <span className="flex items-center gap-2 text-[12px] text-text-primary transition-colors group-hover:text-white">
+                  {preset.name}
+                  {hasHotkey && (
+                    <kbd className="rounded bg-white/5 px-1 font-mono text-[10px] text-text-muted ring-1 ring-white/8">
+                      {hotkey}
+                    </kbd>
+                  )}
+                </span>
+                {preset.description && (
+                  <span className="mt-0.5 block text-[11px] leading-snug text-text-muted">
+                    {preset.description}
+                  </span>
+                )}
               </button>
-            )}
-          </div>
-        ))}
+
+              {/* Export button */}
+              <button
+                type="button"
+                onClick={() => handleExport(preset)}
+                className="focus-ring flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100! focus-visible:opacity-100"
+                title="Export as JSON"
+                aria-label={`Export "${preset.name}" as JSON`}
+              >
+                ↓
+              </button>
+
+              {/* Delete button (user presets only) */}
+              {!preset.builtIn && (
+                <button
+                  type="button"
+                  onClick={() => handleDelete(preset.id)}
+                  className="focus-ring flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] text-red-400 opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100! focus-visible:opacity-100"
+                  title="Delete preset"
+                  aria-label={`Delete "${preset.name}"`}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Divider */}

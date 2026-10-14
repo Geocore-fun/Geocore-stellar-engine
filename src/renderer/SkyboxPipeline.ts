@@ -79,8 +79,18 @@ export class SkyboxPipeline {
   /** PBO-based async pixel readback for histogram (avoids GPU stalls) */
   private asyncReadback: AsyncReadback;
 
-  constructor(canvas: HTMLCanvasElement, faceSize: number) {
+  /**
+   * @param onAssetsChanged Told whenever a layer's async data load starts or
+   *   settles (see {@link Renderer.trackLoad}). Attached before the layers
+   *   initialise, so the loads they start in `init()` are counted too.
+   */
+  constructor(
+    canvas: HTMLCanvasElement,
+    faceSize: number,
+    onAssetsChanged?: (pendingLoads: number) => void,
+  ) {
     this.renderer = new Renderer({ canvas, faceSize });
+    this.renderer.onAssetsChanged = onAssetsChanged ?? null;
     this.cubemapFBO = new CubemapFBO(this.renderer.gl, faceSize);
     this.bloomPass = new BloomPass(this.renderer, faceSize);
     this.lensFlarePass = new LensFlarePass(this.renderer);
@@ -142,6 +152,9 @@ export class SkyboxPipeline {
 
   /** Update the face size for cubemap rendering */
   setFaceSize(size: number): void {
+    // Every sync calls this; reallocating six faces plus the post-process
+    // targets when nothing changed made each parameter tweak far costlier.
+    if (size === this.renderer.faceSize && size === this.cubemapFBO.size) return;
     this.renderer.faceSize = size;
     this.cubemapFBO.resize(size);
     this.bloomPass.resize(size);

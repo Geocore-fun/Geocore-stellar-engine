@@ -79,7 +79,7 @@ export class ConstellationLayer implements RenderLayer {
     this.vbo = gl.createBuffer();
 
     // Start async catalog load
-    this.loadCatalogAndBuild();
+    renderer.trackLoad(this.loadCatalogAndBuild());
   }
 
   /** Load the binary star catalog and build the HIP → position lookup */

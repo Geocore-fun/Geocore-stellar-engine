@@ -124,7 +124,7 @@ export class CatalogStarLayer implements RenderLayer {
     this.vbo = gl.createBuffer();
 
     // Start loading catalog data
-    this.loadCatalogData();
+    renderer.trackLoad(this.loadCatalogData());
   }
 
   /** Async load of the binary star catalog */

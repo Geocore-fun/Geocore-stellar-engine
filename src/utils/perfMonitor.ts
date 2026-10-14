@@ -6,6 +6,7 @@
  */
 
 const WINDOW_SIZE = 60;
+const IDLE_AFTER_MS = 1000;
 
 export class PerfMonitor {
   private frameTimes: number[] = [];
@@ -14,6 +15,7 @@ export class PerfMonitor {
   private fpsUpdateInterval = 500; // ms
   private lastFpsUpdate = 0;
   private currentFps = 0;
+  private lastFrameAt = 0;
 
   /** Call at the start of each frame */
   frameStart(): number {
@@ -30,6 +32,7 @@ export class PerfMonitor {
     this.frameCount++;
 
     const now = performance.now();
+    this.lastFrameAt = now;
     if (now - this.lastFpsUpdate >= this.fpsUpdateInterval) {
       this.currentFps = Math.round((this.frameCount * 1000) / (now - this.lastFpsUpdate));
       this.frameCount = 0;
@@ -80,8 +83,12 @@ export class PerfMonitor {
 
   /** Get a formatted stats object */
   getStats(): PerfStats {
+    // Rendering is on demand: with no frame for a while the last FPS figure is
+    // stale, so report idle instead of a frozen number.
+    const idle = this.lastFrameAt === 0 || performance.now() - this.lastFrameAt > IDLE_AFTER_MS;
     return {
-      fps: this.currentFps,
+      fps: idle ? 0 : this.currentFps,
+      idle,
       avgFrameMs: Math.round(this.avgFrameTime * 100) / 100,
       avgCubemapMs: Math.round(this.avgCubemapTime * 100) / 100,
       lastCubemapMs: Math.round(this.lastCubemapTime * 100) / 100,
@@ -94,12 +101,15 @@ export class PerfMonitor {
     this.cubemapTimes = [];
     this.frameCount = 0;
     this.currentFps = 0;
+    this.lastFrameAt = 0;
     this.lastFpsUpdate = performance.now();
   }
 }
 
 export interface PerfStats {
   fps: number;
+  /** No frame drawn recently (the preview only renders when something changes). */
+  idle: boolean;
   avgFrameMs: number;
   avgCubemapMs: number;
   lastCubemapMs: number;

@@ -1,28 +1,32 @@
 /**
  * Root application component.
  *
- * Integrates the render pipeline with React UI,
- * handles the render loop, and syncs Zustand state to GPU layers.
+ * Composes the layout and wires the UI to the render pipeline. The pipeline's
+ * lifecycle and frame scheduling live in useSkyboxRenderer; this component only
+ * owns exports and which dialogs are open. It deliberately does not subscribe
+ * to scene parameters, so dragging a slider re-renders the panel that owns it,
+ * not the whole app.
  */
 
 import {
   batchExport,
   downloadBlob,
-  exportAsCrossLayout,
-  exportAsHDR,
-  exportAsIndividualPngs,
-  needsTiledRendering,
-  renderTiledCubemap,
+  exportSkybox,
+  formatMiB,
+  GEOCORE_SKYBOX,
   restoreFromAppState,
+  type ExportResult,
 } from '@/export';
-import { useKeyboardShortcuts } from '@/hooks';
+import { useKeyboardShortcuts, useSkyboxRenderer } from '@/hooks';
 import { getAllPresets } from '@/presets';
-import { SkyboxPipeline } from '@/renderer/SkyboxPipeline';
-import { useAppStore, useToastStore } from '@/state';
+import { selectSceneParams, useAppStore, useToastStore } from '@/state';
+import type { ExportFormat } from '@/types';
 import {
   AboutModal,
   ComparisonOverlay,
   ErrorBoundary,
+  GeocoreGuide,
+  GeocoreTip,
   HistogramOverlay,
   PerfOverlay,
   ToastOverlay,
@@ -45,219 +49,50 @@ import {
   StarFieldPanel,
   SunPanel,
 } from '@/ui/panels';
-import { detectGPUCapabilities, setupContextLostHandling } from '@/utils/glErrors';
-import { computeHistogram, type HistogramData } from '@/utils/histogram';
-import { perfMonitor } from '@/utils/perfMonitor';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 function App() {
-  const pipelineRef = useRef<SkyboxPipeline | null>(null);
-  const rafRef = useRef<number>(0);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [pipelineReady, setPipelineReady] = useState(false);
-
-  // Global keyboard shortcuts
   useKeyboardShortcuts();
 
-  // About modal state (rendered at root level to avoid stacking context issues)
+  const {
+    setCanvas,
+    notifyResize,
+    pipelineRef,
+    status,
+    pendingLoads,
+    maxCubeMapSize,
+    histogramData,
+    setHistogramVisible,
+    suspend,
+    resumeAndRedraw,
+  } = useSkyboxRenderer();
+
+  // Dialogs are rendered at root level to avoid stacking context issues
   const [showAbout, setShowAbout] = useState(false);
-  const [histogramData, setHistogramData] = useState<HistogramData | null>(null);
-  const histogramVisibleRef = useRef(false);
-  const lastHistogramTimeRef = useRef(0);
+  const [showGuide, setShowGuide] = useState(false);
   const [canvasDims, setCanvasDims] = useState({ w: 0, h: 0 });
-
-  // Subscribe to store values
-  const seed = useAppStore((s) => s.seed);
-  const faceSize = useAppStore((s) => s.faceSize);
-  const backgroundColor = useAppStore((s) => s.backgroundColor);
-  const camera = useAppStore((s) => s.camera);
-  const starField = useAppStore((s) => s.starField);
-  const catalogStars = useAppStore((s) => s.catalogStars);
-  const constellations = useAppStore((s) => s.constellations);
-  const constellationBoundaries = useAppStore((s) => s.constellationBoundaries);
-  const milkyWay = useAppStore((s) => s.milkyWay);
-  const nebula = useAppStore((s) => s.nebula);
-  const sun = useAppStore((s) => s.sun);
-  const bloom = useAppStore((s) => s.bloom);
-  const lensFlare = useAppStore((s) => s.lensFlare);
-  const godRays = useAppStore((s) => s.godRays);
-  const needsRedraw = useAppStore((s) => s.needsRedraw);
-  const clearRedraw = useAppStore((s) => s.clearRedraw);
-
-  // Sync state to pipeline layers
-  const syncLayers = useCallback(() => {
-    const pipeline = pipelineRef.current;
-    if (!pipeline) return;
-
-    pipeline.setFaceSize(faceSize);
-
-    pipeline.getLayer('background')?.updateParams({ color: backgroundColor });
-    pipeline.getLayer('point-stars')?.updateParams({
-      ...starField,
-    });
-    const starLayer = pipeline.getLayer('point-stars');
-    if (starLayer) {
-      // In 'replace' mode, hide procedural stars when catalog is enabled
-      starLayer.enabled =
-        starField.enabled && !(catalogStars.enabled && catalogStars.blendMode === 'replace');
-    }
-
-    pipeline.getLayer('catalog-stars')?.updateParams({
-      ...catalogStars,
-    });
-    const catalogLayer = pipeline.getLayer('catalog-stars');
-    if (catalogLayer) catalogLayer.enabled = catalogStars.enabled;
-
-    pipeline.getLayer('named-star-labels')?.updateParams({
-      enabled: catalogStars.showLabels,
-      opacity: catalogStars.labelOpacity,
-      color: catalogStars.labelColor,
-      scale: catalogStars.labelScale,
-      magnitudeLimit: catalogStars.labelMagnitudeLimit,
-    });
-    const namedLabelLayer = pipeline.getLayer('named-star-labels');
-    if (namedLabelLayer) namedLabelLayer.enabled = catalogStars.enabled && catalogStars.showLabels;
-
-    pipeline.getLayer('constellations')?.updateParams({
-      ...constellations,
-    });
-    const constellationLayer = pipeline.getLayer('constellations');
-    if (constellationLayer) constellationLayer.enabled = constellations.enabled;
-
-    pipeline.getLayer('constellation-boundaries')?.updateParams({
-      ...constellationBoundaries,
-    });
-    const boundaryLayer = pipeline.getLayer('constellation-boundaries');
-    if (boundaryLayer) boundaryLayer.enabled = constellationBoundaries.enabled;
-
-    pipeline.getLayer('milky-way')?.updateParams({
-      ...milkyWay,
-    });
-    const milkyWayLayer = pipeline.getLayer('milky-way');
-    if (milkyWayLayer) milkyWayLayer.enabled = milkyWay.enabled;
-
-    pipeline.getLayer('constellation-labels')?.updateParams({
-      enabled: constellations.showLabels,
-      opacity: constellations.labelOpacity,
-      color: constellations.labelColor,
-      scale: constellations.labelScale,
-      visibleConstellations: constellations.visibleConstellations,
-    });
-    const labelLayer = pipeline.getLayer('constellation-labels');
-    if (labelLayer) labelLayer.enabled = constellations.enabled && constellations.showLabels;
-
-    pipeline.getLayer('nebula')?.updateParams({
-      ...nebula,
-    });
-    const nebulaLayer = pipeline.getLayer('nebula');
-    if (nebulaLayer) nebulaLayer.enabled = nebula.enabled;
-
-    pipeline.getLayer('sun')?.updateParams({
-      ...sun,
-    });
-    const sunLayer = pipeline.getLayer('sun');
-    if (sunLayer) sunLayer.enabled = sun.enabled;
-
-    // Sync bloom post-processing params
-    pipeline.setBloomParams(bloom);
-    pipeline.setLensFlareParams(lensFlare);
-    pipeline.setGodRayParams(godRays);
-    pipeline.setSunPosition(sun.position);
-  }, [
-    faceSize,
-    backgroundColor,
-    starField,
-    catalogStars,
-    constellations,
-    constellationBoundaries,
-    milkyWay,
-    nebula,
-    sun,
-    bloom,
-    lensFlare,
-    godRays,
-  ]);
-
-  // Main render loop
-  const renderFrame = useCallback(() => {
-    const pipeline = pipelineRef.current;
-    if (!pipeline) return;
-
-    const frameStart = perfMonitor.frameStart();
-
-    if (needsRedraw) {
-      syncLayers();
-      perfMonitor.timeCubemapRender(() => pipeline.renderCubemap(seed));
-      clearRedraw();
-    }
-
-    // Async histogram readback — gated on visibility + throttled to ~10fps
-    if (histogramVisibleRef.current) {
-      const now = performance.now();
-      if (now - lastHistogramTimeRef.current > 100) {
-        const asyncPixels = pipeline.readFacePixelsAsync('pz');
-        if (asyncPixels) {
-          setHistogramData(computeHistogram(asyncPixels));
-          lastHistogramTimeRef.current = now;
-        }
-      }
-    }
-
-    pipeline.renderPreview(camera.yaw, camera.pitch, camera.fov);
-    perfMonitor.frameEnd(frameStart);
-    rafRef.current = requestAnimationFrame(renderFrame);
-  }, [seed, camera, needsRedraw, clearRedraw, syncLayers]);
-
-  // Start/stop render loop when pipeline is ready
-  useEffect(() => {
-    if (!pipelineReady || !pipelineRef.current) return;
-
-    // Do an initial sync + render immediately
-    syncLayers();
-    pipelineRef.current.renderCubemap(seed);
-
-    // Render preview immediately so viewport isn't blank on first load
-    const cam = useAppStore.getState().camera;
-    pipelineRef.current.renderPreview(cam.yaw, cam.pitch, cam.fov);
-
-    rafRef.current = requestAnimationFrame(renderFrame);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-    };
-  }, [pipelineReady, renderFrame, syncLayers, seed]);
-
-  // Request redraw on param changes (debounced for rapid slider movement)
-  const redrawTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
-  useEffect(() => {
-    // Clear any pending debounce
-    if (redrawTimerRef.current) clearTimeout(redrawTimerRef.current);
-    // Debounce cubemap re-render by 30ms to batch rapid changes
-    redrawTimerRef.current = setTimeout(() => {
-      useAppStore.getState().requestRedraw();
-    }, 30);
-    return () => {
-      if (redrawTimerRef.current) clearTimeout(redrawTimerRef.current);
-    };
-  }, [
-    seed,
-    faceSize,
-    backgroundColor,
-    starField,
-    catalogStars,
-    constellations,
-    constellationBoundaries,
-    milkyWay,
-    nebula,
-    sun,
-    bloom,
-    lensFlare,
-    godRays,
-  ]);
 
   // A/B comparison state
   const [isComparing, setIsComparing] = useState(false);
   const comparisonRef = useRef<ComparisonOverlayHandle>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const handleCanvasReady = useCallback(
+    (canvas: HTMLCanvasElement) => {
+      canvasRef.current = canvas;
+      setCanvasDims({ w: canvas.width, h: canvas.height });
+      setCanvas(canvas);
+    },
+    [setCanvas],
+  );
+
+  const handleResize = useCallback(
+    (w: number, h: number) => {
+      setCanvasDims({ w, h });
+      notifyResize();
+    },
+    [notifyResize],
+  );
 
   // Capture current canvas as data URL (for A/B comparison)
   const handleCapture = useCallback((): string | null => {
@@ -268,167 +103,96 @@ function App() {
     comparisonRef.current?.toggle();
   }, []);
 
-  // Stable callback — only stores the canvas ref, actual init happens in useEffect
-  const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
-    canvasRef.current = canvas;
-    setCanvasDims({ w: canvas.width, h: canvas.height });
-    setPipelineReady(false); // trigger the init effect
-  }, []);
+  /**
+   * Render, encode and download one export. Returns null if it could not run
+   * or failed (failure is already reported to the user).
+   */
+  const runExport = useCallback(
+    async (format: ExportFormat, resolution: number): Promise<ExportResult | null> => {
+      const pipeline = pipelineRef.current;
+      const { isExporting, setIsExporting, setExportProgress } = useAppStore.getState();
+      if (!pipeline || isExporting) return null;
 
-  // Initialize pipeline when canvas is available (runs once per canvas mount)
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Dispose previous pipeline if any
-    if (pipelineRef.current) {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-      pipelineRef.current.dispose();
-      pipelineRef.current = null;
-    }
-
-    try {
-      const currentState = useAppStore.getState();
-      const pipeline = new SkyboxPipeline(canvas, currentState.faceSize);
-      pipelineRef.current = pipeline;
-      setPipelineReady(true);
-
-      // Detect GPU capabilities and warn about limitations
-      const { warnings } = detectGPUCapabilities(pipeline.getGL());
-      for (const w of warnings) {
-        useToastStore
-          .getState()
-          .addToast(w.severity === 'error' ? 'error' : 'warning', w.message, 8000);
-      }
-
-      console.log('SkyboxPipeline initialized successfully');
-    } catch (e) {
-      console.error('Failed to initialize SkyboxPipeline:', e);
-      useToastStore
-        .getState()
-        .addToast('error', `WebGL initialization failed: ${(e as Error).message}`, 0);
-    }
-
-    // Handle WebGL context lost/restored
-    const removeContextHandlers = setupContextLostHandling(
-      canvas,
-      () => {
-        // Context lost — pause rendering
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        rafRef.current = 0;
-        useToastStore.getState().addToast('error', 'WebGL context lost. Attempting to recover…', 0);
-      },
-      () => {
-        // Context restored — re-initialize
-        useToastStore.getState().clearAll();
-        useToastStore.getState().addToast('success', 'WebGL context restored.', 3000);
-        // Trigger re-initialization by re-setting the canvas
-        setPipelineReady(false);
-        setTimeout(() => {
-          canvasRef.current = canvas;
-          setPipelineReady(false);
-        }, 100);
-      },
-    );
-
-    return () => {
-      removeContextHandlers();
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-      pipelineRef.current?.dispose();
-      pipelineRef.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasRef.current]);
-
-  // Export handler
-  const handleExport = useCallback(async () => {
-    const pipeline = pipelineRef.current;
-    if (!pipeline) return;
-
-    const { exportFormat, exportResolution, setIsExporting, setExportProgress } =
-      useAppStore.getState();
-
-    setIsExporting(true);
-    setExportProgress(0);
-
-    try {
-      const originalSize = useAppStore.getState().faceSize;
-      const useTiled = needsTiledRendering(pipeline.getGL(), exportResolution);
-
-      let faceData;
-      if (useTiled) {
-        // Tiled rendering for 8K+ resolutions
-        syncLayers();
-        const layers = pipeline.getSortedLayers();
-        faceData = await renderTiledCubemap({
-          renderer: pipeline.getRenderer(),
-          layers,
-          seed,
-          targetSize: exportResolution,
-          onProgress: (done, total) => setExportProgress((done / total) * 0.5),
-        });
-      } else {
-        // Standard rendering
-        pipeline.setFaceSize(exportResolution);
-        pipeline.renderCubemap(seed);
-        faceData = pipeline.readCubemapData();
-      }
-
-      // Export based on format
-      let blob: Blob;
-      let filename: string;
-
-      if (exportFormat === 'png-cross') {
-        blob = await exportAsCrossLayout(faceData, (p) => setExportProgress(0.5 + p * 0.5));
-        filename = `skybox_cross_${exportResolution}.png`;
-      } else if (exportFormat === 'hdr') {
-        blob = await exportAsHDR(faceData, 2.0, (p) => setExportProgress(0.5 + p * 0.5));
-        filename = `skybox_hdr_${exportResolution}.zip`;
-      } else {
-        blob = await exportAsIndividualPngs(faceData, (p) => setExportProgress(0.5 + p * 0.5));
-        filename = `skybox_${exportResolution}.zip`;
-      }
-
-      downloadBlob(blob, filename);
-      useToastStore.getState().addToast('success', `Exported ${filename}`, 3000);
-
-      // Restore preview resolution
-      pipeline.setFaceSize(originalSize);
-      pipeline.renderCubemap(seed);
-    } catch (e) {
-      console.error('Export failed:', e);
-      useToastStore.getState().addToast('error', `Export failed: ${(e as Error).message}`, 8000);
-    } finally {
-      setIsExporting(false);
+      setIsExporting(true);
       setExportProgress(0);
+      suspend();
+      try {
+        const scene = selectSceneParams(useAppStore.getState());
+        const result = await exportSkybox(pipeline, scene, format, resolution, setExportProgress);
+        downloadBlob(result.blob, result.filename);
+        return result;
+      } catch (e) {
+        console.error('Export failed:', e);
+        useToastStore.getState().addToast('error', `Export failed: ${(e as Error).message}`, 8000);
+        return null;
+      } finally {
+        setIsExporting(false);
+        setExportProgress(0);
+        resumeAndRedraw();
+      }
+    },
+    [pipelineRef, suspend, resumeAndRedraw],
+  );
+
+  const handleExport = useCallback(async () => {
+    const { exportFormat, exportResolution } = useAppStore.getState();
+    const result = await runExport(exportFormat, exportResolution);
+    if (result) {
+      useToastStore.getState().addToast('success', `Exported ${result.filename}`, 3000);
     }
-  }, [seed, syncLayers]);
+  }, [runExport]);
+
+  /** One click: set Geocore's format and size, export, and check the file fits. */
+  const handleExportForGeocore = useCallback(
+    async (resolution: number = GEOCORE_SKYBOX.resolution) => {
+      const { setExportFormat, setExportResolution } = useAppStore.getState();
+      setExportFormat(GEOCORE_SKYBOX.format);
+      setExportResolution(resolution);
+
+      const result = await runExport(GEOCORE_SKYBOX.format, resolution);
+      if (!result) return;
+
+      const { addToast } = useToastStore.getState();
+      const size = formatMiB(result.blob.size);
+      if (result.blob.size > GEOCORE_SKYBOX.maxFileBytes) {
+        const retry =
+          resolution > GEOCORE_SKYBOX.fallbackResolution
+            ? ` Export at ${GEOCORE_SKYBOX.fallbackResolution} instead.`
+            : ' Try a calmer sky: fewer stars or a softer nebula.';
+        addToast(
+          'warning',
+          `${result.filename} is ${size}, over Geocore's ${formatMiB(GEOCORE_SKYBOX.maxFileBytes)} limit.${retry}`,
+          12000,
+        );
+      } else {
+        addToast(
+          'success',
+          `Saved ${result.filename} (${size}). In Geocore: Settings ▸ Custom skybox ▸ paste its path ▸ Import skybox.`,
+          9000,
+        );
+      }
+    },
+    [runExport],
+  );
 
   // Batch export handler — exports all presets as cubemaps in a single ZIP
   const handleBatchExport = useCallback(async () => {
     const pipeline = pipelineRef.current;
-    if (!pipeline) return;
+    const { exportResolution, isExporting, setIsExporting, setExportProgress } =
+      useAppStore.getState();
+    if (!pipeline || isExporting) return;
 
-    const { exportResolution, setIsExporting, setExportProgress } = useAppStore.getState();
     setIsExporting(true);
     setExportProgress(0);
-
+    suspend();
     try {
-      const originalSize = useAppStore.getState().faceSize;
       const presets = getAllPresets().map((p) => ({ name: p.name, data: p.data }));
-
       const blob = await batchExport(pipeline, presets, exportResolution, setExportProgress);
       downloadBlob(blob, `skybox_batch_${exportResolution}.zip`);
       useToastStore
         .getState()
         .addToast('success', `Batch exported ${presets.length} presets`, 3000);
-
-      // Restore current state
       restoreFromAppState(pipeline);
-      pipeline.setFaceSize(originalSize);
-      pipeline.renderCubemap(seed);
     } catch (e) {
       console.error('Batch export failed:', e);
       useToastStore
@@ -437,8 +201,11 @@ function App() {
     } finally {
       setIsExporting(false);
       setExportProgress(0);
+      resumeAndRedraw();
     }
-  }, [seed]);
+  }, [pipelineRef, suspend, resumeAndRedraw]);
+
+  const openGuide = useCallback(() => setShowGuide(true), []);
 
   return (
     <ErrorBoundary>
@@ -446,6 +213,8 @@ function App() {
         toolbar={
           <Toolbar
             onAboutClick={() => setShowAbout(true)}
+            onGeocoreClick={openGuide}
+            maxPreviewSize={maxCubeMapSize}
             onCompareToggle={handleCompareToggle}
             isComparing={isComparing}
           />
@@ -463,19 +232,25 @@ function App() {
             <BloomPanel />
             <LensFlarePanel />
             <GodRayPanel />
-            <ExportPanel onExport={handleExport} onBatchExport={handleBatchExport} />
+            <ExportPanel
+              onExport={handleExport}
+              onExportForGeocore={handleExportForGeocore}
+              onBatchExport={handleBatchExport}
+              onShowGeocoreGuide={openGuide}
+            />
           </>
         }
         viewport={
           <>
-            <Viewport onCanvasReady={handleCanvasReady} />
-            <PerfOverlay />
-            <HistogramOverlay
-              data={histogramData}
-              onVisibilityChange={(v) => {
-                histogramVisibleRef.current = v;
-              }}
+            <Viewport
+              onCanvasReady={handleCanvasReady}
+              onResize={handleResize}
+              status={status}
+              pendingLoads={pendingLoads}
             />
+            <GeocoreTip onOpenGuide={openGuide} hidden={status.phase !== 'ready'} />
+            <PerfOverlay />
+            <HistogramOverlay data={histogramData} onVisibilityChange={setHistogramVisible} />
             <ComparisonOverlay
               ref={comparisonRef}
               onCapture={handleCapture}
@@ -486,7 +261,22 @@ function App() {
           </>
         }
       />
-      <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+      <AboutModal
+        isOpen={showAbout}
+        onClose={() => setShowAbout(false)}
+        onOpenGeocoreGuide={() => {
+          setShowAbout(false);
+          setShowGuide(true);
+        }}
+      />
+      <GeocoreGuide
+        isOpen={showGuide}
+        onClose={() => setShowGuide(false)}
+        onExportForGeocore={(resolution) => {
+          setShowGuide(false);
+          void handleExportForGeocore(resolution);
+        }}
+      />
       <ToastOverlay />
     </ErrorBoundary>
   );

@@ -1,19 +1,37 @@
 /**
- * Glassmorphism toolbar — frosted glass header bar with About & Compare buttons.
+ * Glassmorphism toolbar — frosted glass header bar with seed, preview size,
+ * FOV, and the Compare, Use in Geocore and About buttons.
  */
 
 import { useAppStore } from '@/state';
-import { CompareIcon, InfoIcon } from '@/ui/icons';
+import { CompareIcon, GlobeIcon, InfoIcon } from '@/ui/icons';
+import { useId, useMemo } from 'react';
+import { Select, type SelectOption } from './Select';
+
+const PREVIEW_SIZES = [256, 512, 1024, 2048, 4096] as const;
 
 interface ToolbarProps {
   onAboutClick: () => void;
+  /** Open the "Use in Geocore" guide. */
+  onGeocoreClick: () => void;
+  /** Largest cubemap face the GPU supports; larger preview sizes are disabled. */
+  maxPreviewSize?: number | null;
   /** Toggle A/B comparison mode */
   onCompareToggle?: () => void;
   /** Whether comparison mode is currently active */
   isComparing?: boolean;
 }
 
-export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarProps) {
+export function Toolbar({
+  onAboutClick,
+  onGeocoreClick,
+  maxPreviewSize,
+  onCompareToggle,
+  isComparing,
+}: ToolbarProps) {
+  const seedId = useId();
+  const previewId = useId();
+  const fovId = useId();
   const seed = useAppStore((s) => s.seed);
   const setSeed = useAppStore((s) => s.setSeed);
   const randomizeSeed = useAppStore((s) => s.randomizeSeed);
@@ -21,6 +39,20 @@ export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarP
   const setFaceSize = useAppStore((s) => s.setFaceSize);
   const camera = useAppStore((s) => s.camera);
   const setCamera = useAppStore((s) => s.setCamera);
+
+  const previewOptions = useMemo<SelectOption<number>[]>(
+    () =>
+      PREVIEW_SIZES.map((size) => {
+        const tooBig = maxPreviewSize != null && size > maxPreviewSize;
+        return {
+          value: size,
+          label: `${size}px`,
+          disabled: tooBig,
+          disabledReason: tooBig ? `Above this GPU's ${maxPreviewSize}px cubemap limit` : undefined,
+        };
+      }),
+    [maxPreviewSize],
+  );
 
   return (
     <div className="flex w-full items-center gap-5 text-[13px]">
@@ -41,19 +73,24 @@ export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarP
 
       {/* Seed control */}
       <div className="flex items-center gap-2">
-        <span className="text-text-muted">Seed</span>
+        <label htmlFor={seedId} className="text-text-muted">
+          Seed
+        </label>
         <input
+          id={seedId}
           type="number"
           value={seed}
           onChange={(e) => setSeed(parseInt(e.target.value, 10) || 0)}
           className="w-20 rounded-md bg-white/5 px-2 py-1 text-center font-mono text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
         />
         <button
+          type="button"
           onClick={randomizeSeed}
-          className="flex h-7 w-7 items-center justify-center rounded-md bg-white/5 text-sm ring-1 ring-white/8 transition-all hover:bg-white/10 hover:ring-white/15 active:scale-95"
-          title="Randomize seed"
+          className="focus-ring flex h-7 w-7 items-center justify-center rounded-md bg-white/5 text-sm ring-1 ring-white/8 transition-all hover:bg-white/10 hover:ring-white/15 active:scale-95"
+          title="Randomize seed (R)"
+          aria-label="Randomize seed"
         >
-          🎲
+          <span aria-hidden="true">🎲</span>
         </button>
       </div>
 
@@ -62,18 +99,18 @@ export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarP
 
       {/* Resolution selector */}
       <div className="flex items-center gap-2">
-        <span className="text-text-muted">Preview</span>
-        <select
+        <span id={previewId} className="text-text-muted">
+          Preview
+        </span>
+        <Select
           value={faceSize}
-          onChange={(e) => setFaceSize(parseInt(e.target.value, 10))}
-          className="rounded-md bg-white/5 px-2 py-1 text-[12px] text-text-primary ring-1 ring-white/8 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
-        >
-          <option value={256}>256px</option>
-          <option value={512}>512px</option>
-          <option value={1024}>1024px</option>
-          <option value={2048}>2048px</option>
-          <option value={4096}>4096px</option>
-        </select>
+          options={previewOptions}
+          onChange={setFaceSize}
+          labelledBy={previewId}
+          size="sm"
+          className="w-[88px]"
+          title="Preview cubemap face size (exports choose their own)"
+        />
       </div>
 
       {/* Divider */}
@@ -81,8 +118,11 @@ export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarP
 
       {/* FOV control */}
       <div className="flex items-center gap-2">
-        <span className="text-text-muted">FOV</span>
+        <label htmlFor={fovId} className="text-text-muted">
+          FOV
+        </label>
         <input
+          id={fovId}
           type="range"
           min={20}
           max={120}
@@ -103,8 +143,10 @@ export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarP
       {/* A/B Compare button */}
       {onCompareToggle && (
         <button
+          type="button"
           onClick={onCompareToggle}
-          className={`flex h-7 items-center gap-1.5 rounded-md px-2 text-[12px] ring-1 transition-all active:scale-95 ${
+          aria-pressed={isComparing}
+          className={`focus-ring flex h-7 items-center gap-1.5 rounded-md px-2 text-[12px] ring-1 transition-all active:scale-95 ${
             isComparing
               ? 'bg-accent/20 text-accent ring-accent/40 hover:bg-accent/30'
               : 'bg-white/5 text-text-muted ring-white/8 hover:bg-white/10 hover:text-text-primary'
@@ -116,14 +158,27 @@ export function Toolbar({ onAboutClick, onCompareToggle, isComparing }: ToolbarP
         </button>
       )}
 
+      {/* Use in Geocore */}
+      <button
+        type="button"
+        onClick={onGeocoreClick}
+        className="focus-ring flex h-7 items-center gap-1.5 rounded-md bg-accent/15 px-2.5 text-[12px] font-medium text-accent ring-1 ring-accent/30 transition-all hover:bg-accent/25 active:scale-95"
+        title="How to use this sky in Geocore"
+      >
+        <GlobeIcon size={14} />
+        <span>Use in Geocore</span>
+      </button>
+
       {/* Divider */}
       <div className="h-4 w-px bg-white/8" />
 
       {/* About button */}
       <button
+        type="button"
         onClick={onAboutClick}
-        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-text-muted ring-1 ring-white/8 transition-all hover:bg-white/10 hover:text-text-primary active:scale-95"
+        className="focus-ring flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-text-muted ring-1 ring-white/8 transition-all hover:bg-white/10 hover:text-text-primary active:scale-95"
         title="About"
+        aria-label="About"
       >
         <InfoIcon />
       </button>

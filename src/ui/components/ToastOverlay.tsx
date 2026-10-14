@@ -28,18 +28,26 @@ export function ToastOverlay() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col gap-2">
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col gap-2"
+    >
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={`pointer-events-auto flex items-start gap-2 rounded-lg border px-3 py-2 shadow-lg backdrop-blur-sm ${TYPE_STYLES[toast.type]}`}
           style={{ maxWidth: 360, animation: 'fadeIn 0.2s ease-out' }}
         >
-          <span className="mt-0.5 text-sm">{TYPE_ICONS[toast.type]}</span>
+          <span className="mt-0.5 text-sm" aria-hidden="true">
+            {TYPE_ICONS[toast.type]}
+          </span>
           <p className="flex-1 text-[12px] leading-relaxed text-white">{toast.message}</p>
           <button
+            type="button"
             onClick={() => removeToast(toast.id)}
-            className="mt-0.5 text-white/60 hover:text-white"
+            aria-label="Dismiss notification"
+            className="focus-ring mt-0.5 rounded text-white/60 hover:text-white"
           >
             ✕
           </button>

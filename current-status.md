@@ -1,7 +1,28 @@
 # Geocore Stellar Engine — Current Status
 
-**Last Updated:** 2025-07-15 — All Milestones Complete (M1–M4)  
+**Last Updated:** 2026-10-13 — viewport, controls and Geocore presets pass  
 **Status:** M1 ✅ | M2 ✅ | M3 ✅ | M4 ✅ — All roadmap items implemented
+
+---
+
+## 2026-10-13 — Viewport, controls and Geocore presets
+
+- [x] **Black viewport on first load fixed.** The render loop was a React effect declared before
+      the effect that built the pipeline. When the canvas arrived, the build effect's cleanup
+      disposed the pipeline, the loop effect then ran and found no pipeline, and the build effect
+      recreated it without changing any state, so nothing restarted the loop until a camera
+      drag. Replaced with demand-driven rendering (`RenderScheduler` + `useSkyboxRenderer`):
+      first frame, async catalogue loads, parameter changes, camera, resize, tab visibility and
+      context restore each request a frame. Also: no full-app re-render per slider move, no
+      six-face reallocation on every sync, the catalogue fetched once instead of up to twelve
+      times, wheel zoom no longer passive, pointer capture for drags, keyboard orbit.
+- [x] **Loading and error states** over the viewport instead of a black void.
+- [x] **Custom Select and Checkbox** replace every native `<select>` and checkbox (Chromium on
+      Windows drew native popups light-on-light). Toggles are real hidden checkboxes.
+- [x] **10 new presets** tuned as Geocore orbit backdrops; presets now load completely (missing
+      sections fall back to defaults) and keys 1–9 load the first nine.
+- [x] **Use in Geocore** guide (toolbar), first-visit tip, and **Export for Geocore** with a
+      16 MiB file-size check.
 
 ---
 

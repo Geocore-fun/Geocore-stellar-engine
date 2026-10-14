@@ -5,7 +5,13 @@
 
 import { CONSTELLATIONS } from '@/data/constellationData';
 import { useAppStore } from '@/state';
-import { ColorPickerControl, PanelSection, SliderControl, ToggleControl } from '@/ui/components';
+import {
+  Checkbox,
+  ColorPickerControl,
+  PanelSection,
+  SliderControl,
+  ToggleControl,
+} from '@/ui/components';
 import { useCallback, useMemo, useState } from 'react';
 
 /** All 88 abbreviations for "select all" */
@@ -209,8 +215,10 @@ export function ConstellationPanel() {
 
           {/* Per-constellation toggle section */}
           <button
+            type="button"
             onClick={() => setShowList(!showList)}
-            className="flex w-full items-center justify-between py-1.5 text-[12px]"
+            aria-expanded={showList}
+            className="focus-ring flex w-full items-center justify-between rounded py-1.5 text-[12px]"
           >
             <span className="text-text-label">
               Visible Constellations <span className="text-text-muted">({visibleCount}/88)</span>
@@ -218,6 +226,7 @@ export function ConstellationPanel() {
             <span
               className="text-text-muted transition-transform duration-200"
               style={{ transform: showList ? 'rotate(90deg)' : 'rotate(0deg)' }}
+              aria-hidden="true"
             >
               ▸
             </span>
@@ -254,19 +263,15 @@ export function ConstellationPanel() {
               {/* Scrollable constellation list */}
               <div className="max-h-52 overflow-y-auto rounded-md bg-bg-input/50 ring-1 ring-white/5">
                 {filtered.map((c) => (
-                  <label
+                  <Checkbox
                     key={c.abbr}
-                    className="flex cursor-pointer items-center gap-2 px-2.5 py-1 text-[11px] hover:bg-bg-hover transition-colors"
+                    checked={isChecked(c.abbr)}
+                    onChange={() => toggleConstellation(c.abbr)}
+                    className="px-2.5 py-1 text-[11px] transition-colors hover:bg-bg-hover"
                   >
-                    <input
-                      type="checkbox"
-                      checked={isChecked(c.abbr)}
-                      onChange={() => toggleConstellation(c.abbr)}
-                      className="h-3 w-3 rounded border-white/20 accent-accent"
-                    />
-                    <span className="font-mono text-text-muted w-8">{c.abbr}</span>
-                    <span className="text-text-secondary truncate">{c.name}</span>
-                  </label>
+                    <span className="w-8 font-mono text-text-muted">{c.abbr}</span>
+                    <span className="truncate text-text-secondary">{c.name}</span>
+                  </Checkbox>
                 ))}
                 {filtered.length === 0 && (
                   <div className="px-2.5 py-2 text-[11px] text-text-muted">

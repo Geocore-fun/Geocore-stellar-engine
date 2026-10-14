@@ -257,6 +257,57 @@ export interface AppState {
   resetToDefaults: () => void;
 }
 
+/**
+ * The generator parameters that determine what the cubemap looks like — and
+ * nothing else (no camera, export or UI state). One list, used by the render
+ * invalidation, undo history, presets and batch export, so a new layer added
+ * here is picked up by all of them.
+ */
+export const SCENE_PARAM_KEYS = [
+  'seed',
+  'faceSize',
+  'backgroundColor',
+  'starField',
+  'catalogStars',
+  'constellations',
+  'constellationBoundaries',
+  'milkyWay',
+  'nebula',
+  'sun',
+  'bloom',
+  'lensFlare',
+  'godRays',
+] as const satisfies readonly (keyof AppState)[];
+
+export type SceneParamKey = (typeof SCENE_PARAM_KEYS)[number];
+
+/** A complete snapshot of the scene parameters. */
+export type SceneParams = Pick<AppState, SceneParamKey>;
+
+/** Copy the scene parameters out of the full app state. */
+export function selectSceneParams(state: AppState): SceneParams {
+  return {
+    seed: state.seed,
+    faceSize: state.faceSize,
+    backgroundColor: state.backgroundColor,
+    starField: state.starField,
+    catalogStars: state.catalogStars,
+    constellations: state.constellations,
+    constellationBoundaries: state.constellationBoundaries,
+    milkyWay: state.milkyWay,
+    nebula: state.nebula,
+    sun: state.sun,
+    bloom: state.bloom,
+    lensFlare: state.lensFlare,
+    godRays: state.godRays,
+  };
+}
+
+/** True when any scene parameter changed identity between two states. */
+export function sceneParamsChanged(next: AppState, prev: AppState): boolean {
+  return SCENE_PARAM_KEYS.some((key) => next[key] !== prev[key]);
+}
+
 /** Default parameter values */
 export const DEFAULT_STAR_FIELD: StarFieldParams = {
   enabled: true,

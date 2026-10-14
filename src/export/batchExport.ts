@@ -10,9 +10,10 @@
  * The original state is restored after batch export completes.
  */
 
-import type { PresetData } from '@/presets';
+import { resolvePresetData, type PresetData } from '@/presets';
+import { applySceneParams } from '@/renderer/applySceneParams';
 import type { SkyboxPipeline } from '@/renderer/SkyboxPipeline';
-import { useAppStore } from '@/state';
+import { selectSceneParams, useAppStore } from '@/state';
 import { CUBE_FACES } from '@/types';
 import { zipSync } from 'fflate';
 
@@ -65,85 +66,6 @@ async function pixelsToPngBytes(
 }
 
 /**
- * Apply a PresetData snapshot to the pipeline so it renders correctly.
- */
-function applyPresetToPipeline(pipeline: SkyboxPipeline, data: PresetData): void {
-  // Update pipeline layers directly via their public APIs
-  pipeline.setFaceSize(data.faceSize);
-
-  pipeline.getLayer('background')?.updateParams({ color: data.backgroundColor });
-
-  pipeline.getLayer('point-stars')?.updateParams({ ...data.starField });
-  const starLayer = pipeline.getLayer('point-stars');
-  if (starLayer) {
-    starLayer.enabled =
-      data.starField.enabled &&
-      !(data.catalogStars?.enabled && data.catalogStars?.blendMode === 'replace');
-  }
-
-  if (data.catalogStars) {
-    pipeline.getLayer('catalog-stars')?.updateParams({ ...data.catalogStars });
-    const catalogLayer = pipeline.getLayer('catalog-stars');
-    if (catalogLayer) catalogLayer.enabled = data.catalogStars.enabled;
-
-    pipeline.getLayer('named-star-labels')?.updateParams({
-      enabled: data.catalogStars.showLabels,
-      opacity: data.catalogStars.labelOpacity,
-      color: data.catalogStars.labelColor,
-      scale: data.catalogStars.labelScale,
-      magnitudeLimit: data.catalogStars.labelMagnitudeLimit,
-    });
-    const namedLabelLayer = pipeline.getLayer('named-star-labels');
-    if (namedLabelLayer)
-      namedLabelLayer.enabled = data.catalogStars.enabled && data.catalogStars.showLabels;
-  }
-
-  if (data.constellations) {
-    pipeline.getLayer('constellations')?.updateParams({ ...data.constellations });
-    const constellationLayer = pipeline.getLayer('constellations');
-    if (constellationLayer) constellationLayer.enabled = data.constellations.enabled;
-
-    pipeline.getLayer('constellation-labels')?.updateParams({
-      enabled: data.constellations.showLabels,
-      opacity: data.constellations.labelOpacity,
-      color: data.constellations.labelColor,
-      scale: data.constellations.labelScale,
-      visibleConstellations: data.constellations.visibleConstellations,
-    });
-    const labelLayer = pipeline.getLayer('constellation-labels');
-    if (labelLayer)
-      labelLayer.enabled = data.constellations.enabled && data.constellations.showLabels;
-  }
-
-  if (data.constellationBoundaries) {
-    pipeline
-      .getLayer('constellation-boundaries')
-      ?.updateParams({ ...data.constellationBoundaries });
-    const boundaryLayer = pipeline.getLayer('constellation-boundaries');
-    if (boundaryLayer) boundaryLayer.enabled = data.constellationBoundaries.enabled;
-  }
-
-  if (data.milkyWay) {
-    pipeline.getLayer('milky-way')?.updateParams({ ...data.milkyWay });
-    const milkyWayLayer = pipeline.getLayer('milky-way');
-    if (milkyWayLayer) milkyWayLayer.enabled = data.milkyWay.enabled;
-  }
-
-  pipeline.getLayer('nebula')?.updateParams({ ...data.nebula });
-  const nebulaLayer = pipeline.getLayer('nebula');
-  if (nebulaLayer) nebulaLayer.enabled = data.nebula.enabled;
-
-  pipeline.getLayer('sun')?.updateParams({ ...data.sun });
-  const sunLayer = pipeline.getLayer('sun');
-  if (sunLayer) sunLayer.enabled = data.sun.enabled;
-
-  if (data.bloom) pipeline.setBloomParams(data.bloom);
-  if (data.lensFlare) pipeline.setLensFlareParams(data.lensFlare);
-  if (data.godRays) pipeline.setGodRayParams(data.godRays);
-  pipeline.setSunPosition(data.sun.position);
-}
-
-/**
  * Batch-export multiple presets into a single ZIP.
  *
  * @param pipeline The render pipeline (shared, will temporarily modify state)
@@ -166,8 +88,9 @@ export async function batchExport(
     // Sanitize folder name
     const folderName = preset.name.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-    // Apply preset to pipeline
-    applyPresetToPipeline(pipeline, preset.data);
+    // Apply preset to pipeline (missing sections fall back to defaults, exactly
+    // as they do when the preset is loaded in the UI)
+    applySceneParams(pipeline, resolvePresetData(preset.data));
     pipeline.setFaceSize(resolution);
     pipeline.renderCubemap(preset.data.seed);
 
@@ -192,20 +115,6 @@ export async function batchExport(
  */
 export function restoreFromAppState(pipeline: SkyboxPipeline): void {
   const s = useAppStore.getState();
-  applyPresetToPipeline(pipeline, {
-    seed: s.seed,
-    faceSize: s.faceSize,
-    backgroundColor: s.backgroundColor,
-    starField: s.starField,
-    nebula: s.nebula,
-    sun: s.sun,
-    catalogStars: s.catalogStars,
-    constellations: s.constellations,
-    constellationBoundaries: s.constellationBoundaries,
-    milkyWay: s.milkyWay,
-    bloom: s.bloom,
-    lensFlare: s.lensFlare,
-    godRays: s.godRays,
-  });
+  applySceneParams(pipeline, selectSceneParams(s));
   pipeline.renderCubemap(s.seed);
 }

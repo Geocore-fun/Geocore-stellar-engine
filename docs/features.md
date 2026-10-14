@@ -108,10 +108,10 @@ Real-time 3D skybox preview with orbit camera.
 **Features:**
 
 - Renders cubemap onto a skybox (6 textured quads forming a cube around the camera)
-- Orbit camera controlled by mouse drag (yaw + pitch)
-- Scroll wheel for FOV adjustment (10°–150°)
-- Spacebar to toggle UI visibility (full-screen preview)
-- Renders at low resolution (preview res), re-renders on parameter change with debounce
+- Orbit camera controlled by pointer drag (yaw + pitch), or the arrow keys when the canvas has focus
+- Scroll wheel or +/− for FOV adjustment (20°–120°)
+- Renders at preview resolution, on demand: a parameter change re-renders the cubemap, a camera move only re-samples it (see architecture.md, Render Scheduling)
+- Shows "Preparing the sky…" until the first frame, a "Loading star catalogue…" pill while catalogue data streams in, and a plain-language error if WebGL2 cannot start
 
 **Parameters:**
 
@@ -166,13 +166,35 @@ Built-in and custom presets for quick starting points.
 
 **Built-in Presets:**
 
-| Preset          | Description                                                                          |
-| --------------- | ------------------------------------------------------------------------------------ |
-| Low Earth Orbit | Realistic view from ISS altitude — moderate star density, subtle Milky Way, warm sun |
-| Deep Space      | Dense star field, vivid nebulae, no sun                                              |
-| Minimal         | Sparse stars on black, no effects — clean background                                 |
-| Vivid           | High contrast, colorful nebulae, bright stars — artistic/dramatic                    |
-| Solar System    | Bright sun with corona, sparse distant stars                                         |
+Defined in `src/presets/presets.ts`; the first nine load with keys 1–9. Each built-in preset
+states every layer, and loading any preset (built-in, saved or imported) fills missing sections
+with defaults, so a preset always looks the same regardless of what was loaded before it.
+
+| #   | Preset              | Look                                                                     |
+| --- | ------------------- | ------------------------------------------------------------------------ |
+| 1   | Default             | Real and procedural stars over a faint violet haze, soft sun             |
+| 2   | Deep Space          | Dense starfield over a dim violet nebula, slightly larger sun            |
+| 3   | Milky Way           | 250K stars with the galactic band and warm core                          |
+| 4   | Sunset Nebula       | Wine and amber nebula lit by a big golden sun                            |
+| 5   | Blue Giant          | Cold blue haze around a large blue-white star                            |
+| 6   | Void                | Sparse faint stars on pure black                                         |
+| 7   | Orbit Clean         | Real stars on pure black, nothing else (most readable behind a globe)    |
+| 8   | Quiet Orbit         | Very dark navy, only the brighter stars (minimal)                        |
+| 9   | Galactic Core       | Milky Way at its real tilt with a bright dusty core, black elsewhere     |
+| —   | Orbital Sunrise     | Warm sun low on the horizon with bloom, soft god rays, faint lens flare  |
+| —   | High Contrast       | Crisp bright stars, diffraction spikes on the brightest, pure black      |
+| —   | Constellation Atlas | Real stars joined by faint constellation lines                           |
+| —   | Aurora Drift        | Teal clouds with violet accents                                          |
+| —   | Crimson Rift        | Deep red gas with ember-orange ridges and a dim Milky Way                |
+| —   | Cobalt Dream        | Ink-blue to cyan nebula with a small cool-white sun                      |
+| —   | Nebula Veil         | Full-sky plum, rose and gold nebula; the most colourful                  |
+
+Presets 7 onward are tuned as backdrops for Geocore's orbit view. Exported as a 1024
+cross-layout PNG every built-in preset is under Geocore's 16 MiB limit (largest measured:
+Nebula Veil, about 5.3 MiB, on 2026-10-13).
+
+Known quirk: constellation and named-star labels render rotated 180° in the preview, so the
+Constellation Atlas preset ships with names off. Lines are correct at any orientation.
 
 **Custom Presets:**
 

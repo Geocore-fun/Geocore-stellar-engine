@@ -9,6 +9,9 @@ export {
   DEFAULT_NEBULA,
   DEFAULT_STAR_FIELD,
   DEFAULT_SUN,
+  SCENE_PARAM_KEYS,
+  sceneParamsChanged,
+  selectSceneParams,
   useAppStore,
 } from './appStore';
 export type {
@@ -21,6 +24,8 @@ export type {
   LensFlareParams,
   MilkyWayParams,
   NebulaParams,
+  SceneParamKey,
+  SceneParams,
   StarFieldParams,
   SunParams,
 } from './appStore';

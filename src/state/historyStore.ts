@@ -11,25 +11,10 @@
  */
 
 import { create } from 'zustand';
-import { useAppStore, type AppState } from './appStore';
+import { sceneParamsChanged, selectSceneParams, useAppStore, type SceneParams } from './appStore';
 
 /** Tracked parameter snapshot (excludes camera, transient, and UI state) */
-export type Snapshot = Pick<
-  AppState,
-  | 'seed'
-  | 'faceSize'
-  | 'backgroundColor'
-  | 'starField'
-  | 'catalogStars'
-  | 'constellations'
-  | 'constellationBoundaries'
-  | 'milkyWay'
-  | 'nebula'
-  | 'sun'
-  | 'bloom'
-  | 'lensFlare'
-  | 'godRays'
->;
+export type Snapshot = SceneParams;
 
 interface HistoryState {
   past: Snapshot[];
@@ -45,23 +30,7 @@ const MAX_HISTORY = 50;
 const DEBOUNCE_MS = 500;
 
 /** Extract the tracked parameter fields from the full app state. */
-function extractTracked(state: AppState): Snapshot {
-  return {
-    seed: state.seed,
-    faceSize: state.faceSize,
-    backgroundColor: state.backgroundColor,
-    starField: state.starField,
-    catalogStars: state.catalogStars,
-    constellations: state.constellations,
-    constellationBoundaries: state.constellationBoundaries,
-    milkyWay: state.milkyWay,
-    nebula: state.nebula,
-    sun: state.sun,
-    bloom: state.bloom,
-    lensFlare: state.lensFlare,
-    godRays: state.godRays,
-  };
-}
+const extractTracked = selectSceneParams;
 
 /** Apply a snapshot to the main appStore via a single setState merge. */
 function applySnapshot(snapshot: Snapshot): void {
@@ -140,8 +109,11 @@ function initHistoryTracking(): void {
     const initial = extractTracked(useAppStore.getState());
     lastTrackedJSON = JSON.stringify(initial);
 
-    useAppStore.subscribe((state) => {
+    useAppStore.subscribe((state, prev) => {
       if (isUndoRedoing) return;
+      // Camera drags and UI flags change the store many times a second; skip the
+      // JSON comparison unless a scene parameter actually changed identity.
+      if (!sceneParamsChanged(state, prev)) return;
 
       const tracked = extractTracked(state);
       const json = JSON.stringify(tracked);

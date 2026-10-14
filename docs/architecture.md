@@ -92,7 +92,7 @@ For each of the 6 cubemap faces, the engine:
 | Aspect          | Preview Mode                              | Export Mode                                |
 | --------------- | ----------------------------------------- | ------------------------------------------ |
 | Resolution      | Low (256–512px per face)                  | Full (up to 8K+ per face)                  |
-| Update trigger  | Reactive (on parameter change, debounced) | Manual (user clicks export)                |
+| Update trigger  | Demand-driven (see Render Scheduling)     | Manual (user clicks export)                |
 | Target          | `<canvas>` element (skybox preview)       | Offscreen framebuffer → file output        |
 | Post-processing | Optional (can skip for speed)             | Full quality                               |
 | Tiling          | Not needed                                | May use tiled rendering for ultra-high res |
@@ -238,17 +238,46 @@ React component calls Zustand action
 Zustand store updates state
         │
         ▼
-React subscription triggers re-render
+Store listener (useSkyboxRenderer) marks the cubemap dirty
         │
         ▼
-Engine receives new params via useEffect
+RenderScheduler coalesces requests into one animation frame
         │
         ▼
-Affected layer(s) update uniforms
+applySceneParams() pushes the store's scene into every layer
         │
         ▼
-Preview re-renders (debounced, low-res)
+Cubemap re-renders, then the preview samples it
 ```
+
+### Render Scheduling
+
+The preview renders on demand, not in a continuous loop. `src/renderer/RenderScheduler.ts`
+holds two dirty flags, and `src/hooks/useSkyboxRenderer.ts` raises them:
+
+| Trigger                                   | Work                                 |
+| ----------------------------------------- | ------------------------------------ |
+| Pipeline created (first load)             | Cubemap + preview                    |
+| A layer's async data settles (catalogue)  | Cubemap + preview                    |
+| Any scene parameter changes               | Cubemap + preview                    |
+| Camera changes                            | Preview only                         |
+| Canvas resized                            | Preview, drawn synchronously         |
+| Tab becomes visible                       | Preview                              |
+| GL context restored                       | New pipeline, then cubemap + preview |
+| Histogram shown                           | Preview, polling readback until fresh |
+
+Requests coalesce into at most one frame per animation tick; idle, the GPU does nothing. Each
+frame reads the store directly, so no frame can draw stale React state. Exports `suspend()` the
+scheduler while they own the pipeline and `resumeAndRedraw()` afterwards.
+
+Layers register their async loads with `Renderer.trackLoad()`; settling one redraws the cubemap
+and the count drives the "Loading star catalogue…" indicator. `loadCatalog()` is shared, so the
+four layers that need the catalogue fetch and parse it once.
+
+The scene parameters are listed once, in `SCENE_PARAM_KEYS` (`src/state/appStore.ts`). The
+render invalidation, undo history, presets and batch export all read that list, and
+`applySceneParams()` (`src/renderer/applySceneParams.ts`) is the single mapping from those
+parameters to layers and post-process passes.
 
 ### Star Catalog Loading
 
@@ -360,7 +389,7 @@ const program = new ShaderProgram(gl, vertSrc, fragSrc);
 
 ### Performance Strategies
 
-1. **Debounced preview updates**: Parameter changes trigger re-render after 50–100ms of inactivity
+1. **Demand-driven preview**: parameter changes re-render the cubemap at most once per animation frame; camera moves only re-sample it; nothing renders while idle
 2. **Resolution scaling**: Preview at 256–512px, export at full resolution
 3. **Layer caching**: Unchanged layers don't re-render (phase 2 optimization)
 4. **Tiled rendering**: For ultra-high resolutions (8K+), render in tiles and stitch

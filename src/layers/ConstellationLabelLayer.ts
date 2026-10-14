@@ -108,7 +108,7 @@ export class ConstellationLabelLayer implements RenderLayer {
     this.buildAtlas();
 
     // Load star catalog for centroid computation
-    this.loadCatalogAndBuild();
+    renderer.trackLoad(this.loadCatalogAndBuild());
   }
 
   /** Generate a Canvas 2D text atlas with all constellation names */

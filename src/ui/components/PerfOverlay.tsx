@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 export function PerfOverlay() {
   const [stats, setStats] = useState<PerfStats>({
     fps: 0,
+    idle: true,
     avgFrameMs: 0,
     avgCubemapMs: 0,
     lastCubemapMs: 0,
@@ -47,7 +48,11 @@ export function PerfOverlay() {
   return (
     <div className="pointer-events-none absolute right-3 bottom-3 z-20 font-mono text-[11px] leading-snug">
       <div className="rounded-lg bg-black/60 px-3 py-2 backdrop-blur-sm ring-1 ring-white/10">
-        <div style={{ color: fpsColor }}>{stats.fps} FPS</div>
+        {stats.idle ? (
+          <div className="text-text-secondary">Idle (renders on change)</div>
+        ) : (
+          <div style={{ color: fpsColor }}>{stats.fps} FPS</div>
+        )}
         <div className="text-text-muted">Frame: {stats.avgFrameMs.toFixed(1)}ms</div>
         <div className="text-text-muted">Cubemap: {stats.lastCubemapMs.toFixed(1)}ms</div>
       </div>

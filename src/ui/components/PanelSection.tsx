@@ -20,8 +20,10 @@ export function PanelSection({ title, defaultOpen = false, children }: PanelSect
   return (
     <div className="mx-3 my-1.5">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="glass-card flex w-full items-center justify-between px-3 py-2.5 text-left transition-all"
+        aria-expanded={isOpen}
+        className="glass-card focus-ring flex w-full items-center justify-between px-3 py-2.5 text-left transition-all"
         style={{
           borderRadius: isOpen ? '10px 10px 0 0' : '10px',
           borderBottom: isOpen ? '1px solid rgba(255,255,255,0.03)' : undefined,

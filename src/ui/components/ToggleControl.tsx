@@ -1,37 +1,33 @@
 /**
- * iOS-style toggle switch.
+ * iOS-style on/off switch with its label.
  *
- * Mimics the native iOS UISwitch with a pill track,
- * circular white thumb with shadow, and smooth animation.
+ * Built on a real, visually hidden checkbox (role="switch") so the label is
+ * clickable, Space toggles it, and assistive tech reads "on/off" with the
+ * label's name. The track and thumb are drawn in CSS (see .switch-track).
  */
 
 interface ToggleControlProps {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  disabled?: boolean;
 }
 
-export function ToggleControl({ label, checked, onChange }: ToggleControlProps) {
+export function ToggleControl({ label, checked, onChange, disabled = false }: ToggleControlProps) {
   return (
-    <div className="flex items-center justify-between py-1.5">
+    <label className="check-label flex cursor-pointer items-center justify-between gap-3 py-1.5">
       <span className="text-[12px] text-text-label">{label}</span>
-      <button
+      <input
+        type="checkbox"
         role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className="relative inline-flex h-6.5 w-11.5 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200"
-        style={{
-          backgroundColor: checked ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)',
-        }}
-      >
-        <span
-          className="pointer-events-none inline-block h-5.5 w-5.5 rounded-full bg-white transition-transform duration-200"
-          style={{
-            transform: checked ? 'translateX(22px)' : 'translateX(2px)',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.3), 0 1px 1px rgba(0,0,0,0.15)',
-          }}
-        />
-      </button>
-    </div>
+        className="check-input"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span className="switch-track" aria-hidden="true">
+        <span className="switch-thumb" />
+      </span>
+    </label>
   );
 }

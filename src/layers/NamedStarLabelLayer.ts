@@ -104,7 +104,7 @@ export class NamedStarLabelLayer implements RenderLayer {
     this.vbo = gl.createBuffer();
     this.ibo = gl.createBuffer();
 
-    this.loadData();
+    renderer.trackLoad(this.loadData());
   }
 
   /** Load named stars and catalog data */

@@ -58,10 +58,37 @@ function raDec2Xyz(rarad: number, decrad: number, radius: number): [number, numb
 }
 
 /**
- * Load and parse the binary star catalog.
- * Returns an array sorted brightest-first.
+ * In-flight and completed loads, keyed by URL.
+ *
+ * Four layers (catalog stars, constellation lines, constellation labels and
+ * named-star labels) all need the same catalogue, and React Strict Mode builds
+ * the pipeline twice in development. Without sharing, one page load fetched and
+ * parsed the same file up to a dozen times. A failed load is evicted so the
+ * next caller retries instead of inheriting the rejection forever.
  */
-export async function loadCatalog(url = '/data/stars.bin'): Promise<CatalogStar[]> {
+const loadCache = new Map<string, Promise<unknown>>();
+
+function memoizedLoad<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const cached = loadCache.get(key) as Promise<T> | undefined;
+  if (cached) return cached;
+  const pending = load().catch((err: unknown) => {
+    loadCache.delete(key);
+    throw err;
+  });
+  loadCache.set(key, pending);
+  return pending;
+}
+
+/**
+ * Load and parse the binary star catalog.
+ * Returns an array sorted brightest-first. The result is shared between
+ * callers and must be treated as read-only.
+ */
+export function loadCatalog(url = '/data/stars.bin'): Promise<CatalogStar[]> {
+  return memoizedLoad(`catalog:${url}`, () => fetchCatalog(url));
+}
+
+async function fetchCatalog(url: string): Promise<CatalogStar[]> {
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`Failed to load star catalog: ${resp.status}`);
 
@@ -140,10 +167,12 @@ export function buildCatalogVertexData(
 }
 
 /**
- * Load named stars JSON.
+ * Load named stars JSON. Shared between callers like {@link loadCatalog}.
  */
-export async function loadNamedStars(url = '/data/named-stars.json'): Promise<NamedStar[]> {
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error(`Failed to load named stars: ${resp.status}`);
-  return resp.json();
+export function loadNamedStars(url = '/data/named-stars.json'): Promise<NamedStar[]> {
+  return memoizedLoad(`named:${url}`, async () => {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Failed to load named stars: ${resp.status}`);
+    return (await resp.json()) as NamedStar[];
+  });
 }

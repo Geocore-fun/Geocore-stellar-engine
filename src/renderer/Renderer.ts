@@ -18,6 +18,14 @@ export class Renderer {
   readonly gl: WebGL2RenderingContext;
   readonly canvas: HTMLCanvasElement;
   private _faceSize: number;
+  private _pendingLoads = 0;
+
+  /**
+   * Called whenever a tracked asset load starts or settles. The owner uses it
+   * to show a loading state and, on settle, to re-render: a layer whose data
+   * arrives after the first frame has nothing else to tell anyone it changed.
+   */
+  onAssetsChanged: ((pendingLoads: number) => void) | null = null;
 
   constructor(options: RendererOptions) {
     this.canvas = options.canvas;
@@ -55,6 +63,28 @@ export class Renderer {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 1);
+  }
+
+  /** Number of asset loads (catalogues, label data) still in flight. */
+  get pendingLoads(): number {
+    return this._pendingLoads;
+  }
+
+  /**
+   * Register an async asset load owned by a layer. The promise is expected to
+   * handle its own errors; whatever the outcome, settling it notifies
+   * {@link onAssetsChanged} so the cubemap is redrawn with the new data.
+   */
+  trackLoad(load: Promise<unknown>): void {
+    this._pendingLoads++;
+    this.onAssetsChanged?.(this._pendingLoads);
+    const settle = () => {
+      this._pendingLoads--;
+      this.onAssetsChanged?.(this._pendingLoads);
+    };
+    // then(settle, settle) rather than finally(): finally() re-throws, which
+    // would surface an unhandled rejection for a load the layer already handled.
+    void load.then(settle, settle);
   }
 
   /** Compile a shader from source */
@@ -122,6 +152,8 @@ export class Renderer {
 
   /** Clean up all GL resources */
   dispose(): void {
+    // A load that settles after disposal must not poke the next pipeline's owner.
+    this.onAssetsChanged = null;
     // Don't call WEBGL_lose_context — it permanently destroys the context
     // on the canvas, breaking re-initialization (e.g. React Strict Mode).
     // Individual resources (programs, buffers, textures) are cleaned up

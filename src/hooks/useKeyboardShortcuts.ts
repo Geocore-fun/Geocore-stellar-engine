@@ -7,12 +7,12 @@
  *   Ctrl+Shift+Z — Redo (alternative)
  *   R        — Randomize seed
  *   Space    — Toggle fullscreen viewport
- *   1-5      — Load built-in presets (when not focused on input)
+ *   1-9      — Load built-in presets 1-9 (when not focused on input)
  *   F        — Fit/reset camera
  *   P        — Toggle performance overlay
  */
 
-import { BUILT_IN_PRESETS } from '@/presets';
+import { applyPresetData, BUILT_IN_PRESETS } from '@/presets';
 import { useAppStore } from '@/state';
 import { useHistoryStore } from '@/state/historyStore';
 import { useEffect } from 'react';
@@ -34,6 +34,10 @@ export function useKeyboardShortcuts() {
         }
       }
 
+      // Single-key shortcuts never take a modifier: Ctrl+R must reload the
+      // page and Ctrl+1 switch tabs, not randomise the seed or load a preset.
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
       // Ignore other shortcuts when typing in inputs
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
@@ -51,8 +55,8 @@ export function useKeyboardShortcuts() {
         case 'f': {
           // Reset camera
           e.preventDefault();
+          // A camera change redraws the preview; the cubemap itself is unchanged.
           state.setCamera({ yaw: 0, pitch: 0, fov: 75 });
-          state.requestRedraw();
           break;
         }
 
@@ -60,18 +64,18 @@ export function useKeyboardShortcuts() {
         case '2':
         case '3':
         case '4':
-        case '5': {
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9': {
           // Load built-in preset
           const idx = parseInt(e.key, 10) - 1;
           const preset = BUILT_IN_PRESETS[idx];
           if (preset) {
             e.preventDefault();
-            state.setSeed(preset.data.seed);
-            state.setFaceSize(preset.data.faceSize);
-            state.setBackgroundColor(preset.data.backgroundColor);
-            state.setStarField(preset.data.starField);
-            state.setNebula(preset.data.nebula);
-            state.setSun(preset.data.sun);
+            // Same path as clicking it in the Presets panel: every layer, one undo step.
+            applyPresetData(preset.data);
           }
           break;
         }

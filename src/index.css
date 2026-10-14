@@ -204,14 +204,262 @@ input[type='color']::-webkit-color-swatch {
   border-radius: 50%;
 }
 
-/* ── Select — clean dropdown ───────────────────────────────────────── */
-select {
-  -webkit-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2398989f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 24px !important;
+/* ── Native-control colour scheme ───────────────────────────────────
+ * Scrollbars, the colour picker, number inputs and any native popup the
+ * browser draws should use their dark variants. Without this Chromium on
+ * Windows draws light popups with this page's near-white text on them.
+ */
+:root {
+  color-scheme: dark;
+}
+
+/* ── Focus ring — one look for every focusable control ─────────────── */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* ── Select (custom listbox, see ui/components/Select.tsx) ─────────── */
+.select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+.select-trigger:hover:not(:disabled) {
+  background-color: var(--color-bg-input-hover);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+.select-trigger[aria-expanded='true'] {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+.select-trigger:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+.select-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.select-trigger-sm {
+  height: 28px;
+  padding: 0 8px 0 10px;
+  font-size: 12px;
+}
+.select-trigger-md {
+  height: 32px;
+  padding: 0 10px 0 11px;
+  font-size: 12px;
+}
+
+.select-listbox {
+  position: fixed;
+  z-index: 60;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: rgba(24, 24, 34, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  animation: select-pop 0.12s ease-out;
+}
+.select-listbox[data-placement='top'] {
+  animation-name: select-pop-up;
+}
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 4px 8px 4px 6px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.select-option[data-active='true'] {
+  background: rgba(10, 132, 255, 0.22);
+}
+.select-option[aria-selected='true'] {
+  font-weight: 600;
+}
+.select-option[aria-disabled='true'] {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+.select-option[aria-disabled='true'][data-active='true'] {
+  background: rgba(255, 255, 255, 0.05);
+}
+.select-option-hint {
+  margin-left: auto;
+  padding-left: 12px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 400;
+}
+@keyframes select-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes select-pop-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* ── Checkbox and switch (real input, visually hidden, styled sibling) ── */
+.check-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.check-box {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  transition:
+    background-color 0.12s,
+    box-shadow 0.12s;
+}
+.check-box svg {
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
+}
+.check-input:checked + .check-box {
+  background-color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+.check-input:checked + .check-box svg {
+  opacity: 1;
+  transform: scale(1);
+}
+.check-label:hover .check-input:not(:disabled) + .check-box {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
+}
+.check-label:hover .check-input:checked:not(:disabled) + .check-box {
+  background-color: var(--color-accent-hover);
+}
+.check-input:focus-visible + .check-box,
+.check-input:focus-visible + .switch-track {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+.check-input:disabled + .check-box,
+.check-input:disabled + .switch-track {
+  opacity: 0.4;
+}
+.check-label:has(.check-input:disabled) {
+  cursor: not-allowed;
+}
+
+.switch-track {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: background-color 0.2s;
+}
+.switch-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 1px 1px rgba(0, 0, 0, 0.15);
+  transform: translateX(2px);
+  transition: transform 0.2s;
+}
+.check-input:checked + .switch-track {
+  background-color: var(--color-accent);
+}
+.check-input:checked + .switch-track .switch-thumb {
+  transform: translateX(22px);
+}
+
+/* ── Viewport loading state ─────────────────────────────────────────── */
+.viewport-backdrop {
+  /* Shown until the first frame: a faint glow instead of a black void. */
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(40, 60, 120, 0.22), transparent 60%),
+    radial-gradient(ellipse at 20% 15%, rgba(90, 40, 120, 0.12), transparent 50%), #030308;
+}
+.viewport-canvas {
+  transition: opacity 0.35s ease-out;
+}
+.viewport-spinner {
+  display: inline-block;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--color-accent);
+  animation: viewport-spin 0.9s linear infinite;
+}
+@keyframes viewport-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Used by toasts and the first-visit tip (it was referenced but never defined). */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewport-spinner {
+    animation-duration: 2.4s;
+  }
+  .viewport-canvas,
+  .select-listbox,
+  .check-box,
+  .check-box svg,
+  .switch-track,
+  .switch-thumb {
+    transition: none;
+    animation: none;
+  }
 }
 
 /* ── Transitions ───────────────────────────────────────────────────── */
