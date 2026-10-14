@@ -25,7 +25,7 @@ Pro players on Geocore for Windows can import their own sky from a cross-layout 
 
 1. Open [skybox.geocore.fun](https://skybox.geocore.fun) and design your sky.
 2. In the Export panel, set **Format** to **Cross Layout PNG** and **Resolution** to **1024 × 1024** (or **512 × 512**), then press **Export Skybox**. This saves `skybox_cross_1024.png`, a 4096 × 3072 image. The resolution is per face, and the game accepts square power-of-two faces of 1024 px or less, so 2048 and up are refused.
-3. In Geocore for Windows (signed in, Geocore Pro), open **Settings**, find **Custom skybox**, paste the full path to the PNG (no quotation marks), and press **Import skybox**. **Reset skybox** restores the default sky.
+3. In Geocore for Windows (signed in, Geocore Pro), open **Settings**, find **Custom skybox**, paste the full path to the PNG (Shift+right-click ▸ Copy as path works), and press **Import skybox**. **Reset skybox** restores the default sky.
 
 The game also limits the file to 16 MiB. A busy sky with nebulae and many stars compresses poorly, so if 1024 is refused as too large, export at 512 instead. The import lasts until Geocore closes and is not saved. The full steps and refusal messages are in the [Geocore FAQ](https://geocore.fun/support).
 
