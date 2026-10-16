@@ -1,4 +1,6 @@
 #version 300 es
+// Simplex noise adapted from webgl-noise: Copyright (C) 2011 Ashima Arts, (C) 2011-2016 Stefan Gustavson. MIT License;
+// full notice in THIRD-PARTY-NOTICES.md.
 precision highp float;
 
 // Nebula fragment shader.
