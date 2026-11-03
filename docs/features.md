@@ -188,6 +188,7 @@ with defaults, so a preset always looks the same regardless of what was loaded b
 | —   | Crimson Rift        | Deep red gas with ember-orange ridges and a dim Milky Way                |
 | —   | Cobalt Dream        | Ink-blue to cyan nebula with a small cool-white sun                      |
 | —   | Nebula Veil         | Full-sky plum, rose and gold nebula; the most colourful                  |
+| —   | Emerald Reach       | Faint green haze over dark procedural stars; geocore.fun/reach's sky     |
 
 Presets 7 onward are tuned as backdrops for Geocore's orbit view. Exported as a 1024
 cross-layout PNG every built-in preset is under Geocore's 16 MiB limit (largest measured:

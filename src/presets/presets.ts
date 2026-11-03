@@ -663,6 +663,43 @@ const NEBULA_VEIL: Preset = {
   }),
 };
 
+// The backdrop of geocore.fun/reach (Geocore Build Queue D2.0-1906): one green
+// hue family, kept dark and low in contrast so the reach globe's green bars
+// stay the subject. No catalogue stars (every pixel comes from the seeded
+// generators, so the site's render carries no third-party data), no sun.
+const EMERALD_REACH: Preset = {
+  id: 'emerald-reach',
+  name: 'Emerald Reach',
+  description: 'A faint green haze over a dark starfield. The backdrop of the Geocore reach globe.',
+  builtIn: true,
+  data: scene(1906, {
+    backgroundColor: '#010604',
+    starField: {
+      count: 24000,
+      minBrightness: 0.3,
+      maxBrightness: 0.9,
+      minSize: 1.0,
+      maxSize: 2.0,
+      colorVariation: 0.1,
+    },
+    catalogStars: { enabled: false },
+    nebula: {
+      color1: '#010604',
+      color2: '#073a24',
+      color3: '#1a7446',
+      density: 1.35,
+      falloff: 2.0,
+      scale: 1.0,
+      octaves: 5,
+      lacunarity: 2.0,
+      gain: 0.5,
+      brightness: 0.7,
+    },
+    milkyWay: { enabled: false },
+    sun: { enabled: false },
+  }),
+};
+
 /**
  * Built-in presets. The first nine are bound to the 1-9 keys, so append new
  * presets rather than reordering.
@@ -684,6 +721,7 @@ export const BUILT_IN_PRESETS: Preset[] = [
   CRIMSON_RIFT,
   COBALT_DREAM,
   NEBULA_VEIL,
+  EMERALD_REACH,
 ];
 
 // ── localStorage helpers ────────────────────────────────────────

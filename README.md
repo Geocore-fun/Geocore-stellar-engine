@@ -73,7 +73,7 @@ The game also limits the file to 16 MiB. A busy sky with nebulae and many stars 
 
 | Feature | Description |
 | ------- | ----------- |
-| **Preset System** | 16 built-in presets (10 tuned as Geocore orbit backdrops) + save/load/import/export custom presets (JSON) |
+| **Preset System** | 17 built-in presets (11 tuned as Geocore backdrops) + save/load/import/export custom presets (JSON) |
 | **Undo/Redo** | Full parameter history with keyboard shortcuts (Ctrl+Z / Ctrl+Shift+Z) |
 | **A/B Comparison** | Side-by-side before/after comparison with split slider |
 | **Session Persistence** | Auto-saves all parameters to localStorage; restores on reload |
