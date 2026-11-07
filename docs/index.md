@@ -21,7 +21,6 @@ The tool offers unprecedented control over every visual parameter: star fields, 
 | [architecture.md](architecture.md) | System architecture, module breakdown, data flow             |
 | [tech-stack.md](tech-stack.md)     | Tech stack decisions, tooling, and rationale                 |
 | [features.md](features.md)         | Feature specifications — MVP and future phases               |
-| [roadmap.md](roadmap.md)           | Implementation roadmap with milestones and phases            |
 | [ui-design.md](ui-design.md)       | UI/UX design plan, layout, control panels                    |
 | [code-style.md](code-style.md)     | Code style guide, conventions, architecture rules            |
 
@@ -36,7 +35,6 @@ GeoCoreStellarEngine/
 │   ├── architecture.md
 │   ├── tech-stack.md
 │   ├── features.md
-│   ├── roadmap.md
 │   ├── ui-design.md
 │   └── code-style.md
 │
